@@ -1,0 +1,6 @@
+"location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
+"test/single/original/localization_ja.csv:2","hello","こんにちは","","True","GREETING","","comment test"
+"test/single/original/localization_ja.csv:3","Farewell...
+and good bye!","さようなら！","","False","GREETING","",""
+"test/single/original/localization_ja.csv:4","Start","開始","","False","MENU","",""
+"[DELETED] former test/single/original/localization_ja.csv:5","Quit","終了","","False","MENU","","[DELETED]"

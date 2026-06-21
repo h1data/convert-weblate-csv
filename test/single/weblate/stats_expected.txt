@@ -1,0 +1,6 @@
+- in: test/single/original/localization_ja.csv
+- out: test/single/weblate/localization_ja.csv
+- new lines: 2
+- deleted lines: 1
+- discrepancies: 
+  * GREETING, Farewell...\nand good bye!: さようなら! <> さようなら！

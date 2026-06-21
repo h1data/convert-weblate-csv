@@ -1,0 +1,5 @@
+location,source,target,ID,fuzzy,context,translator_comments,developer_comments
+,evening,你好,,False,GREETING,,
+,farewell,再见,,False,GREETING,,
+,Start,开始,,False,MENU,,
+,Quit,退出,,False,MENU,,

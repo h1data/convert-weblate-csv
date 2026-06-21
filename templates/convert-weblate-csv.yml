@@ -1,0 +1,57 @@
+spec:
+  inputs:
+    # These are examples of inputs.
+    job_name:
+      default: job-template
+    stage:
+      default: test
+    invert:
+      default: true
+    multi:
+    input:
+    output:
+    columns:
+    header:
+      default: true
+    encoding:
+      default: utf8
+    utf_bom:
+      default: false
+    crlf:
+      default: true
+    separator:
+      default: ","
+    obsolete:
+      default: true
+    artifacts:
+      default: stats.txt
+      
+---
+# This is an example of a job using inputs
+# use variables with this syntax : $[[ inputs.xxx ]]
+$[[ inputs.job_name ]]:
+  image: node:latest
+  stage: $[[ inputs.stage ]]
+  variables:
+    INVERT: "$[[ inputs.invert ]]"
+    MULTI: "$[[ inputs.multi ]]"
+    INPUT: "$[[ inputs.input ]]"
+    OUTPUT: "$[[ inputs.output ]]"
+    COLUMNS: "$[[ inputs.columns ]]"
+    HEADER: "$[[ inputs.header ]]"
+    ENCODING: "$[[ inputs.encoding ]]"
+    CRLF: "$[[ inputs.crlf ]]"
+    SEPARATOR: "$[[ inputs.separator ]]"
+    OBSOLETE: "$[[ inputs.obsolete ]]"
+  script:
+    - echo "Starting job $[[ inputs.job_name ]]"
+    - node dist/index.js
+  artifacts:
+    paths:
+      - "$[[ inputs.artifact ]]"
+    when: always
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - when: always

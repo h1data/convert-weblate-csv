@@ -1,0 +1,3 @@
+in: test/single/weblate/localization_ja.csv
+out: test/single/original/localization_ja.csv
+updated lines: 1

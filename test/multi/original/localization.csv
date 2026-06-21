@@ -1,0 +1,5 @@
+type,en,zh,ko,ja,comment
+GREETING,"Hello, $NAME",你好、$NAME,こんにちは、$NAME,comment test
+GREETING,farewell,再见,さようなら,
+MENU,Start,开始,開始,
+MENU,Quit,退出,終了,
