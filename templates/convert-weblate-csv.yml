@@ -45,7 +45,7 @@ $[[ inputs.job_name ]]:
     - node dist/index.js
   artifacts:
     paths:
-      - "$[[ inputs.artifact ]]"
+      - "$[[ inputs.artifacts ]]"
     when: always
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
