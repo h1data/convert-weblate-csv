@@ -23,7 +23,7 @@ spec:
       default: ","
     obsolete:
       default: true
-    artifacts:
+    artifact:
       default: stats.txt
       
 ---
