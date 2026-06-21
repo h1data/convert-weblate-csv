@@ -5,23 +5,25 @@ workflow:
       when: never
     - when: always
 
+stages:
+  - build
+  - test
+  - release
+
 include:
   # include the local convert-weblate-csv template and pass inputs to create a test job
   - local: templates/convert-weblate-csv.yml
     inputs:
       job_name: convert-weblate-csv
       stage: test
+      artifacts: test/single/weblate/*
       invert: false
       multi: false
       input: test/single/original/localization_*.csv
       output: test/single/weblate/localization_*.csv
       columns: context,source,target,developer_comments
+      obsolete: true
       header: true
-
-stages:
-  - build
-  - test
-  - release
 
 verify-conversion:
   stage: test

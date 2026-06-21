@@ -5,6 +5,7 @@ spec:
       default: job-template
     stage:
       default: test
+    artifacts:
     invert:
       default: true
     multi:
@@ -23,12 +24,8 @@ spec:
       default: ","
     obsolete:
       default: true
-    artifact:
-      default: stats.txt
       
 ---
-# This is an example of a job using inputs
-# use variables with this syntax : $[[ inputs.xxx ]]
 $[[ inputs.job_name ]]:
   image: node:latest
   stage: $[[ inputs.stage ]]
