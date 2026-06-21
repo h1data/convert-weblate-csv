@@ -47,7 +47,7 @@ async function iterateFilesMonolingual(callback: Function) {
         const result = await callback(input, output);
         stats.push(result);
     }
-    fs.writeFileSync('stats.txt', stats.join('\n----\n'), 'utf8');
+    fs.writeFileSync(process.env.stats_file as string, stats.join('\n----\n'), 'utf8');
     console.info('Done.');
 }
 

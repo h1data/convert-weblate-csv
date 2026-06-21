@@ -38,7 +38,7 @@ verify-conversion:
     - echo "Comparing expected vs produced files"
     - if [ ! -f test/single/weblate/localization_ja.csv ]; then echo "Produced file not found" && exit 2; fi
     - if [ ! -f test/single/weblate/localization_ja_expected.csv ]; then echo "Expected file not found" && exit 2; fi
-    - diff -u test/single/weblate/localization_ja_expected.csv test/single/weblate/localization_ja.csv || (echo "Conversion mismatch" && exit 1)
+    - diff -a test/single/weblate/localization_ja_expected.csv test/single/weblate/localization_ja.csv || (echo "Conversion mismatch" && exit 1)
 
 # create-release:
 #   stage: release

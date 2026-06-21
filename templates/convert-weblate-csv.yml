@@ -22,6 +22,8 @@ spec:
       default: true
     separator:
       default: ","
+    stats_file:
+      default: stats.txt
     obsolete:
       default: true
       
@@ -39,6 +41,7 @@ $[[ inputs.job_name ]]:
     ENCODING: "$[[ inputs.encoding ]]"
     CRLF: "$[[ inputs.crlf ]]"
     SEPARATOR: "$[[ inputs.separator ]]"
+    STATS_FILE: "$[[ inputs.stats_file ]]"
     OBSOLETE: "$[[ inputs.obsolete ]]"
   script:
     - echo "Starting job $[[ inputs.job_name ]]"
