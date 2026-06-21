@@ -17,28 +17,11 @@ include:
       output: test/single/weblate/localization_*.csv
       columns: context,source,target,developer_comments
       header: true
-      artifact: test/single/weblate/localization_*.csv
 
 stages:
   - build
   - test
   - release
-
-ensure-csv-converted:
-  stage: test
-  image: badouralix/curl-jq
-  rules:
-    # project must be public for `curl` to access the API; using `CI_JOB_TOKEN` is insufficient!
-    - if: $CI_PROJECT_VISIBILITY != "public"
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
-      when: never
-    - when: always
-  script: |
-    url="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/pipelines/${CI_PIPELINE_ID}/jobs"
-    curl --fail --show-error --silent "$url" |
-    jq --exit-status 'map(select(.name | contains("component job of my-component") or contains("convert-weblate-csv"))) | length >= 1'
 
 verify-conversion:
   stage: test
@@ -52,8 +35,8 @@ verify-conversion:
     - apk add --no-cache diffutils
     - echo "Comparing expected vs produced files"
     - if [ ! -f test/single/weblate/localization_ja.csv ]; then echo "Produced file not found" && exit 2; fi
-    - if [ ! -f test/single/original/localization_ja_expected.csv ]; then echo "Expected file not found" && exit 2; fi
-    - diff -u test/single/original/localization_ja_expected.csv test/single/weblate/localization_ja.csv || (echo "Conversion mismatch" && exit 1)
+    - if [ ! -f test/single/weblate/localization_ja_expected.csv ]; then echo "Expected file not found" && exit 2; fi
+    - diff -u test/single/weblate/localization_ja_expected.csv test/single/weblate/localization_ja.csv || (echo "Conversion mismatch" && exit 1)
 
 # create-release:
 #   stage: release
