@@ -41,12 +41,12 @@ commit-build:
     - git config --local user.name "github-actions[bot]"
   script:
       - |
-        if git diff --quiet; then
-          echo "no change after build"
-        else
+        if [ -n "$(git status --porcelain)" ]; then
           git add .
           git commit -m "updated by CI build"
           git push origin main
+        else
+          echo "no change after build"
         fi
 
 # include the local convert-weblate-csv template and pass inputs to create a test job
