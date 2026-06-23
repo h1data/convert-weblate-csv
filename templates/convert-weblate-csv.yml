@@ -76,4 +76,5 @@ $[[ inputs.job_name ]]:
     - echo "Starting job $[[ inputs.job_name ]]"
     - node dist/index.js
   artifacts:
-    paths: [ "$[[ inputs.output ]]", "$[[ inputs.stats_file ]]"]
+    paths: [ "$[[ inputs.output ]]", "$[[ inputs.stats_file ]]" ]
+    
