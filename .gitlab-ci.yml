@@ -18,7 +18,10 @@ build:
         paths:
           - 'dist/**'
           - 'src/**'
+          - .gitlab-ci.yml
+    - when: manual
   before_script:
+    - apk add --no-cache git
     - git config --local user.email "github-actions[bot]@users.noreply.github.com"
     - git config --local user.name "github-actions[bot]"
     - git remote add origin "https://$CI_SERVER_HOST/$CI_PROJECT_PATH/"
