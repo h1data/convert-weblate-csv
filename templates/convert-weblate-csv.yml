@@ -1,32 +1,61 @@
 spec:
   inputs:
-    # These are examples of inputs.
-    job_name:
-      default: job-template
     stage:
-      default: test
+      description: The stage to be executed
+      default: convert
+    job_name:
+      description: The job name
+      default: job-template
     artifacts:
+      description: Define the artifacts i.e. converted CSV and stats.txt
     invert:
-      default: true
+      description: Whether inverse conversion from Weblate CSV to the original CSV or not
+      type: boolean
     multi:
+      description: Whether the original CSV contains multiple languages to translate
+      type: boolean
     input:
+      description: Input file pattern (* for language code)
     output:
+      description: Output file pattern (* for language code)
+    stats_file:
+      description: Stats file path
+      default: stats.txt
     columns:
+      description: Column list as Weblate CSV (context, source, target...) 
     header:
+      description: Whether if the original CSV has header
+      type: boolean
       default: true
     encoding:
+      description: Specifies encoding of the original CSV
       default: utf8
     utf_bom:
+      description: Whether if the original CSV has BOM when its encoding is UTF8
+      type: boolean
       default: false
     crlf:
-      default: true
+      description: Whether if the linefeed of the original CSV is CRLF or LF
+      options:
+        - CRLF
+        - LF
+      default: CRLF
     separator:
+      description: Specifies the separator of the original CSV
       default: ","
-    stats_file:
-      default: stats.txt
     obsolete:
+      description: Whether adding obsoleted rows for CSVs for Weblate
+      type: boolean
       default: true
-      
+    overwrite:
+      description: Whether overwriting existed translations of CSVs for Weblate
+      type: boolean
+      default: false
+    quoting:
+      description: Whether if always quoting every column in the original CSV
+      type: boolean
+      default: false
+
 ---
 $[[ inputs.job_name ]]:
   image: node:latest
@@ -43,6 +72,8 @@ $[[ inputs.job_name ]]:
     SEPARATOR: "$[[ inputs.separator ]]"
     STATS_FILE: "$[[ inputs.stats_file ]]"
     OBSOLETE: "$[[ inputs.obsolete ]]"
+    OVERWRITE: "$[[ inputs.overwrite ]]"
+    QUOTING: "$[[ inputs.quoting ]]"
   script:
     - echo "Starting job $[[ inputs.job_name ]]"
     - node dist/index.js
@@ -50,8 +81,3 @@ $[[ inputs.job_name ]]:
     paths:
       - "$[[ inputs.artifacts ]]"
     when: always
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
-      when: never
-    - when: always
