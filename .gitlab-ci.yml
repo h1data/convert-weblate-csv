@@ -68,8 +68,16 @@ verify-conversion-single-original-to-weblate:
   image: alpine:latest
   needs:
     - job: convert-single-original-to-weblate
+      optional: true
       artifacts: true
   rules:
+    - changes:
+        compare_to: 'refs/heads/main'
+        paths:
+          - dist/**
+          - src/**
+          - test/**
+          - .gitlab-ci.yml
     - when: on_success
   script:
     - apk add --no-cache diffutils
