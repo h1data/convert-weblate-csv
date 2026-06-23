@@ -56,7 +56,7 @@ spec:
 
 ---
 $[[ inputs.job_name ]]:
-  image: node:latest
+  image: node:24-slim
   stage: $[[ inputs.stage ]]
   variables:
     INVERT: "$[[ inputs.invert ]]"

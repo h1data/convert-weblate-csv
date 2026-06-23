@@ -29,7 +29,7 @@ build:
 
 commit-build:
   stage: build
-  image: alpine:latest
+  image: dhi.io/git
   needs:
     - job: build
       artifacts: true
