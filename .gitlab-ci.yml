@@ -39,7 +39,6 @@ include:
   - local: templates/convert-weblate-csv.yml
     rules:
       - changes:
-          compare_to: 'main'
           paths:
             - dist/**
             - src/**
