@@ -27,27 +27,27 @@ build:
     paths:
       - dist/**
 
-commit-build:
-  stage: build
-  image:
-    name: alpine/git
-    entrypoint:
-      - ''
-  needs:
-    - job: build
-      artifacts: true
-  before_script:
-    - git config --local user.email "github-actions[bot]@users.noreply.github.com"
-    - git config --local user.name "github-actions[bot]"
-  script:
-      - |
-        if [ -n "$(git status --porcelain)" ]; then
-          git add .
-          git commit -m "updated by CI build"
-          git push origin main
-        else
-          echo "no change after build"
-        fi
+# commit-build:
+#   stage: build
+#   image:
+#     name: alpine/git
+#     entrypoint:
+#       - ''
+#   needs:
+#     - job: build
+#       artifacts: true
+#   before_script:
+#     - git config --local user.email "github-actions[bot]@users.noreply.github.com"
+#     - git config --local user.name "github-actions[bot]"
+#   script:
+#       - |
+#         if [ -n "$(git status --porcelain)" ]; then
+#           git add .
+#           git commit -m "[ci skip] updated by CI build"
+#           git push origin main
+#         else
+#           echo "no change after build"
+#         fi
 
 # include the local convert-weblate-csv template and pass inputs to create a test job
 include:
