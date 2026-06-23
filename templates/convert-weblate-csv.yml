@@ -6,8 +6,6 @@ spec:
     job_name:
       description: The job name
       default: job-template
-    artifacts:
-      description: Define the artifacts i.e. converted CSV and stats.txt
     invert:
       description: Whether inverse conversion from Weblate CSV to the original CSV or not
       type: boolean
@@ -78,6 +76,4 @@ $[[ inputs.job_name ]]:
     - echo "Starting job $[[ inputs.job_name ]]"
     - node dist/index.js
   artifacts:
-    paths:
-      - "$[[ inputs.artifacts ]]"
-    when: always
+    paths: [ "$[[ inputs.output ]]", "$[[ inputs.stats_file ]]"]

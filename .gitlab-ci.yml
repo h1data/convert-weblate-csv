@@ -48,7 +48,6 @@ include:
     inputs:
       stage: test
       job_name: convert-single-original-to-weblate
-      artifacts: test/single/weblate/*
       invert: false
       multi: false
       input: test/single/original/localization_ja.csv
