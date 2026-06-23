@@ -15,8 +15,8 @@ build:
   image: node:24-slim
   rules:
     - changes:
-        compare_to: 'refs/heads/main'
         paths:
+          - 'dist/**'
           - 'src/**'
   before_script:
     - git config --local user.email "github-actions[bot]@users.noreply.github.com"
