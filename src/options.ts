@@ -35,18 +35,6 @@ export interface INPUTS {
 function initOptions() : INPUTS {
 
     const ret: INPUTS = {
-        // invert: false,
-        // multi: false,
-        // input: 'test/single/original/localization_ja.csv',
-        // output: 'test/single/weblate/localization_ja.csv',
-        // columns: 'context,source,target,developer_comments'.split(','),
-        // header: true,
-        // encoding: 'utf8',
-        // CRLF: true,
-        // separator: ',',
-        // obsolete: true,
-        // overwrite: false,
-        // isQuote: false
         invert: process.env.INVERT == 'true',
         multi: process.env.MULTI == 'true',
         input: process.env.INPUT as string,
