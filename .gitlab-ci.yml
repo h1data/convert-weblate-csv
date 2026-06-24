@@ -30,7 +30,7 @@ build:
       if [ -n "$(git status --porcelain)" ]; then
         git add .
         git commit -m "[ci skip] updated by CI build"
-        git push
+        git push HEAD:main
       else
         echo "no change after build"
       fi
