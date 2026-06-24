@@ -31,7 +31,7 @@ build:
       if [ -n "$(git status --porcelain)" ]; then
         git add .
         git commit -m "[ci skip] updated by CI build"
-        git push -f https://oauth2:$COMMIT_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH HEAD:$CI_COMMIT_REF_NAME
+        git push -f origin HEAD:$CI_COMMIT_REF_NAME
       else
         echo "no change after build"
       fi
