@@ -54,7 +54,7 @@ function initOptions() : INPUTS {
         columns: (process.env.COLUMNS ?? '').split(','),
         header: process.env.HEADER == 'true',
         encoding: process.env.ENCODING as fs.WriteFileOptions,
-        CRLF: process.env.CRLF == 'true',
+        CRLF: process.env.CRLF == 'CRLF',
         separator: process.env.SEPARATOR as string,
         obsolete: process.env.OBSOLETE == 'true',
         overwrite: process.env.OVERWRITE == 'true',
