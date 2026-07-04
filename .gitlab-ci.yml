@@ -82,7 +82,7 @@ include:
       columns: context,source,target,developer_comments
       header: true
       encoding: utf8
-      utf_bom: false
+      utf_bom: true
       crlf: CRLF
       separator: ","
       obsolete: true
@@ -111,8 +111,6 @@ verify-conversion-single-original-to-weblate:
     - if [ ! -f test/single/weblate/stats.txt ]; then echo "Produced stats not found" && exit 2; fi
     - diff -u test/single/weblate/stats_expected.txt test/single/weblate/stats.txt || (echo "Stats conversion mismatch" && exit 1)
 
-
-
 verify-conversion-single-weblate-to-original:
   stage: test
   image: alpine:latest
@@ -135,7 +133,6 @@ verify-conversion-single-weblate-to-original:
     - echo "Comparing expected vs produced stats"
     - if [ ! -f test/single/weblate/stats.txt ]; then echo "Produced stats not found" && exit 2; fi
     - diff -u test/single/weblate/stats_expected.txt test/single/weblate/stats.txt || (echo "Stats conversion mismatch" && exit 1)
-
 
 create-release:
   stage: release
