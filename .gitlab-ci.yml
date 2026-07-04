@@ -16,8 +16,8 @@ build:
   rules:
     - changes:
         paths:
-          - 'dist/**'
-          - 'src/**'
+          - dist/**/*
+          - src/**/*
           - .gitlab-ci.yml
   before_script:
     - git config --global user.name "$GITLAB_USER_NAME"
@@ -44,9 +44,9 @@ include:
     rules:
       - changes:
           paths:
-            - dist/**
-            - src/**
-            - test/**
+            - dist/**/*
+            - src/**/*
+            - test/**/*
             - .gitlab-ci.yml
     inputs:
       stage: test
@@ -75,9 +75,9 @@ verify-conversion-single-original-to-weblate:
   rules:
     - changes:
         paths:
-          - dist/**
-          - src/**
-          - test/**
+          - dist/**/*
+          - src/**/*
+          - test/**/*
           - .gitlab-ci.yml
   script:
     - apk add --no-cache diffutils
