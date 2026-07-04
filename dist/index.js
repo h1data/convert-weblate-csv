@@ -1634,6 +1634,7 @@ var output = self2.output;
 var columns = self2.columns;
 var header = self2.header;
 var encoding = self2.encoding;
+var utf_bom = self2.utf_bom;
 var CRLF = self2.CRLF;
 var separator = self2.separator;
 var obsolete = self2.obsolete;
@@ -1649,6 +1650,7 @@ function initOptions() {
     columns: (process.env.COLUMNS ?? "").split(","),
     header: process.env.HEADER == "true",
     encoding: process.env.ENCODING,
+    utf_bom: process.env.UTF_BOM == "true",
     CRLF: process.env.CRLF == "CRLF",
     separator: process.env.SEPARATOR,
     obsolete: process.env.OBSOLETE == "true",
@@ -1753,7 +1755,8 @@ async function convertMonolingual(input2, output2) {
   };
   await (0, import_csvwriter.default)(outputValues, csvWriterOptions, (error, csv) => {
     if (error) throw error;
-    fs.writeFileSync(output2, csv, encoding);
+    const dataToWrite = utf_bom ? "\uFEFF" + csv : csv;
+    fs.writeFileSync(output2, dataToWrite, encoding);
   });
   const stats = [];
   stats.push(`- in: ${input2}`);
@@ -1834,7 +1837,8 @@ async function inverseConvertMonolingual(input2, output2) {
   }
   await (0, import_csvwriter.default)(outputValues, writerOptions, (error, csv) => {
     if (error) throw error;
-    fs.writeFileSync(output2, csv, encoding);
+    const dataToWrite = utf_bom ? "\uFEFF" + csv : csv;
+    fs.writeFileSync(output2, dataToWrite, encoding);
   });
   return `in: ${input2}
 out: ${output2}
