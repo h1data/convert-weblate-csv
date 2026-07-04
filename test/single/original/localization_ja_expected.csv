@@ -1,4 +1,4 @@
-type,en,ja,comment
+﻿type,en,ja,comment
 GREETING,"Hello, $NAME",こんにちは、$NAME,comment test
 GREETING,"Farewell...
 and good bye!",さようなら！,

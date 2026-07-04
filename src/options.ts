@@ -9,6 +9,7 @@ export const output = self.output;
 export const columns = self.columns;
 export const header = self.header;
 export const encoding = self.encoding;
+export const utf_bom = self.utf_bom;
 export const CRLF = self.CRLF;
 export const separator = self.separator;
 export const obsolete = self.obsolete;
@@ -25,6 +26,7 @@ export interface INPUTS {
     readonly columns: Array<string>,
     readonly header: boolean,
     readonly encoding: fs.WriteFileOptions,
+    readonly utf_bom: boolean,
     readonly CRLF: boolean,
     readonly separator: string,
     readonly obsolete: boolean,
@@ -42,6 +44,7 @@ function initOptions() : INPUTS {
         columns: (process.env.COLUMNS ?? '').split(','),
         header: process.env.HEADER == 'true',
         encoding: process.env.ENCODING as fs.WriteFileOptions,
+        utf_bom: process.env.UTF_BOM == 'true',
         CRLF: process.env.CRLF == 'CRLF',
         separator: process.env.SEPARATOR as string,
         obsolete: process.env.OBSOLETE == 'true',

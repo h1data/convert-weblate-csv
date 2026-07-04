@@ -66,6 +66,7 @@ $[[ inputs.job_name ]]:
     COLUMNS: "$[[ inputs.columns ]]"
     HEADER: "$[[ inputs.header ]]"
     ENCODING: "$[[ inputs.encoding ]]"
+    UTF_BOM: "$[[ inputs.utf_bom ]]"
     CRLF: "$[[ inputs.crlf ]]"
     SEPARATOR: "$[[ inputs.separator ]]"
     STATS_FILE: "$[[ inputs.stats_file ]]"

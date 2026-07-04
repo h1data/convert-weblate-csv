@@ -111,7 +111,8 @@ export async function convertMonolingual(input: string, output: string) : Promis
 
     await csvWriter(outputValues, csvWriterOptions, (error, csv) => {
         if (error) throw error;
-        fs.writeFileSync(output, csv, options.encoding);
+        const dataToWrite = options.utf_bom ? '\uFEFF' + csv : csv;
+        fs.writeFileSync(output, dataToWrite, options.encoding);
     })
 
     const stats: Array<string> = [];
@@ -209,7 +210,8 @@ export async function inverseConvertMonolingual(input: string, output: string) :
 
     await csvWriter(outputValues, writerOptions, (error, csv) => {
         if (error) throw error;
-        fs.writeFileSync(output, csv, options.encoding);
+        const dataToWrite = options.utf_bom ? '\uFEFF' + csv : csv;
+        fs.writeFileSync(output, dataToWrite, options.encoding);
     });
 
     return `in: ${input}
