@@ -39,7 +39,7 @@ build:
       - dist/**
 
 include:
-  - local: templates/convert-weblate-csv.yml
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/convert-weblate-csv@$CI_COMMIT_SHA
     rules:
       - changes:
           paths:
@@ -63,7 +63,7 @@ include:
       separator: ","
       obsolete: true
       quoting: false
-  - local: templates/convert-weblate-csv.yml
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/convert-weblate-csv@main
     rules:
       - changes:
           paths:
