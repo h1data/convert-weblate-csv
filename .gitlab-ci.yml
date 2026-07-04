@@ -7,7 +7,8 @@ workflow:
 
 stages:
   - build
-  - test
+  - test-original-weblate
+  - test-weblate-original
   - release
 
 build:
@@ -48,7 +49,7 @@ include:
             - test/**/*
             - .gitlab-ci.yml
     inputs:
-      stage: test
+      stage: test-original-weblate
       job_name: convert-single-original-to-weblate
       invert: false
       multi: false
@@ -72,7 +73,7 @@ include:
             - test/**/*
             - .gitlab-ci.yml
     inputs:
-      stage: test
+      stage: test-weblate-original
       job_name: convert-single-weblate-to-original
       invert: true
       multi: false
@@ -89,7 +90,7 @@ include:
       quoting: false
 
 verify-conversion-single-original-to-weblate:
-  stage: test
+  stage: test-original-weblate
   image: alpine:latest
   needs:
     - job: convert-single-original-to-weblate
@@ -112,7 +113,7 @@ verify-conversion-single-original-to-weblate:
     - diff -u test/single/weblate/stats_expected.txt test/single/weblate/stats.txt || (echo "Stats conversion mismatch" && exit 1)
 
 verify-conversion-single-weblate-to-original:
-  stage: test
+  stage: test-weblate-original
   image: alpine:latest
   needs:
     - job: convert-single-original-to-weblate
