@@ -116,7 +116,7 @@ verify-conversion-single-weblate-to-original:
   stage: test-weblate-original
   image: alpine:latest
   needs:
-    - job: convert-single-original-to-weblate
+    - job: convert-single-weblate-to-original
       optional: true
       artifacts: true
   rules:
