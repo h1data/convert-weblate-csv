@@ -47,6 +47,7 @@ include:
             - src/**/*
             - test/**/*
             - .gitlab-ci.yml
+            - templates/convert-weblate-csv.yml
     inputs:
       stage: test
       job_name: convert-single-original-to-weblate
@@ -72,6 +73,7 @@ include:
             - src/**/*
             - test/**/*
             - .gitlab-ci.yml
+            - templates/convert-weblate-csv.yml
     inputs:
       stage: test
       job_name: convert-single-weblate-to-original
@@ -104,6 +106,7 @@ verify-conversion-single-original-to-weblate:
           - src/**/*
           - test/**/*
           - .gitlab-ci.yml
+          - templates/convert-weblate-csv.yml
   script:
     - apk add --no-cache diffutils
     - echo "Comparing expected vs produced CSVs"
@@ -127,6 +130,7 @@ verify-conversion-single-weblate-to-original:
           - src/**/*
           - test/**/*
           - .gitlab-ci.yml
+          - templates/convert-weblate-csv.yml
   script:
     - apk add --no-cache diffutils
     - echo "Comparing expected vs produced CSVs"
