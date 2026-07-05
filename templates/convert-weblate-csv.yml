@@ -77,7 +77,7 @@ $[[ inputs.job_name ]]:
     QUOTING: "$[[ inputs.quoting ]]"
   script:
     - echo "Starting job $[[ inputs.job_name ]]"
-        - mkdir temp
+    - mkdir temp
     - |
       curl --silent --header "PRIVATE-TOKEN: $ACCESS_TOKEN" \
       "$CI_API_V4_URL/projects/h1data%2Fconvert-weblate-csv/repository/files/dist%2Findex%2Ejs/raw?ref=main" \
