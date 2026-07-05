@@ -50,6 +50,7 @@ include:
     inputs:
       stage: test
       job_name: convert-single-original-to-weblate
+      token: $ACCESS_TOKEN
       invert: false
       multi: false
       input: test/single/original/localization_ja.csv
@@ -74,6 +75,7 @@ include:
     inputs:
       stage: test
       job_name: convert-single-weblate-to-original
+      token: $ACCESS_TOKEN
       invert: true
       multi: false
       input: test/single/weblate/localization_ja.csv

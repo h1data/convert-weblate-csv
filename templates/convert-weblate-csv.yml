@@ -6,6 +6,8 @@ spec:
     job_name:
       description: The job name
       default: job-template
+    token:
+      description: The access token to retrieve script file
     invert:
       description: Whether inverse conversion from Weblate CSV to the original CSV or not
       type: boolean
@@ -56,7 +58,7 @@ spec:
 
 ---
 $[[ inputs.job_name ]]:
-  image: node:24-slim
+  image: node:24
   stage: $[[ inputs.stage ]]
   variables:
     INVERT: "$[[ inputs.invert ]]"
@@ -75,7 +77,12 @@ $[[ inputs.job_name ]]:
     QUOTING: "$[[ inputs.quoting ]]"
   script:
     - echo "Starting job $[[ inputs.job_name ]]"
-    - node dist/index.js
+        - mkdir temp
+    - |
+      curl --silent --header "PRIVATE-TOKEN: $ACCESS_TOKEN" \
+      "$CI_API_V4_URL/projects/h1data%2Fconvert-weblate-csv/repository/files/dist%2Findex%2Ejs/raw?ref=main" \
+      -o temp/index.js
+    - node temp/index.js
   artifacts:
     paths: [ "$[[ inputs.output ]]", "$[[ inputs.stats_file ]]" ]
     
