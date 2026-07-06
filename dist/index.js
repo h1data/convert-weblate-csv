@@ -1680,7 +1680,7 @@ var columns = self2.columns;
 var header = self2.header;
 var encoding = self2.encoding;
 var utf_bom = self2.utf_bom;
-var CRLF = self2.CRLF;
+var CRLF = self2.linefeed;
 var separator = self2.separator;
 var obsolete = self2.obsolete;
 var overwrite = self2.overwrite;
@@ -1696,7 +1696,7 @@ function initOptions() {
     header: process.env.HEADER == "true",
     encoding: process.env.ENCODING,
     utf_bom: process.env.UTF_BOM == "true",
-    CRLF: process.env.CRLF == "CRLF",
+    linefeed: process.env.LINEFEED == "CRLF",
     separator: process.env.SEPARATOR,
     obsolete: process.env.OBSOLETE == "true",
     overwrite: process.env.OVERWRITE == "true",
