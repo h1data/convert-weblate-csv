@@ -167,10 +167,6 @@ export async function inverseConvertMonolingual(input: string, output: string) :
         targetColumn = header[options.columns.indexOf('target')];
     }
 
-    contextColumn = header[options.columns.indexOf('context')];
-    sourceColumn = header[options.columns.indexOf('source')];
-    targetColumn = header[options.columns.indexOf('target')];
-
     const columnMap = {};
     WEBLATE_COLUMNS.forEach( (key) => {
         if (options.columns.includes(key)) {

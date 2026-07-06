@@ -58,7 +58,7 @@ include:
       output: test/single/weblate/localization_ja.csv
       stats_file: test/single/weblate/stats.txt
       columns: context,source,target,developer_comments
-      header: true
+      header: false
       encoding: utf8
       utf_bom: false
       crlf: CRLF
