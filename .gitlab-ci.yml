@@ -84,7 +84,7 @@ include:
       output: test/single/original/localization_ja.csv
       stats_file: test/single/original/stats.txt
       columns: context,source,target,developer_comments
-      header: true
+      header: false
       encoding: utf8
       utf_bom: true
       crlf: CRLF
