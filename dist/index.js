@@ -1805,6 +1805,7 @@ async function inverseConvertMonolingual(input2, output2) {
       columnMap[key] = header2[columns.indexOf(key)];
     }
   });
+  console.log(header2, columnMap);
   const parserOptions = {
     headers: header ? void 0 : false,
     mapHeaders: ({ header: header3, index }) => columnMap[header3],
