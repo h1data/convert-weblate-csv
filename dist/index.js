@@ -1798,16 +1798,20 @@ async function inverseConvertMonolingual(input2, output2) {
     });
   } else {
     for (let i = 0; i < columns.length; i++) header2.push(String(i));
+    contextColumn = header2[columns.indexOf("context")];
+    sourceColumn = header2[columns.indexOf("source")];
+    targetColumn = header2[columns.indexOf("target")];
   }
+  contextColumn = header2[columns.indexOf("context")];
+  sourceColumn = header2[columns.indexOf("source")];
+  targetColumn = header2[columns.indexOf("target")];
   const columnMap = {};
   WEBLATE_COLUMNS.forEach((key) => {
     if (columns.includes(key)) {
       columnMap[key] = header2[columns.indexOf(key)];
     }
   });
-  console.log(header2, columnMap);
   const parserOptions = {
-    headers: header ? void 0 : false,
     mapHeaders: ({ header: header3, index }) => columnMap[header3],
     separator
   };
