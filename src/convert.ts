@@ -162,7 +162,14 @@ export async function inverseConvertMonolingual(input: string, output: string) :
             });
     } else {
         for (let i=0; i<options.columns.length; i++) header.push(String(i));
+        contextColumn = header[options.columns.indexOf('context')];
+        sourceColumn = header[options.columns.indexOf('source')];
+        targetColumn = header[options.columns.indexOf('target')];
     }
+
+    contextColumn = header[options.columns.indexOf('context')];
+    sourceColumn = header[options.columns.indexOf('source')];
+    targetColumn = header[options.columns.indexOf('target')];
 
     const columnMap = {};
     WEBLATE_COLUMNS.forEach( (key) => {
@@ -170,10 +177,8 @@ export async function inverseConvertMonolingual(input: string, output: string) :
             columnMap[key] = header[options.columns.indexOf(key)];
         }
     });
-    console.log(header, columnMap);
 
     const parserOptions : csvParser.Options = {
-        headers: options.header ? undefined : false,
         mapHeaders: ({ header, index }) => columnMap[header],
         separator: options.separator
     };
