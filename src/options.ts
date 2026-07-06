@@ -41,7 +41,7 @@ function initOptions() : INPUTS {
         multi: process.env.MULTI == 'true',
         input: process.env.INPUT as string,
         output: process.env.OUTPUT as string,
-        columns: (process.env.COLUMNS ?? '').split(','),
+        columns: (process.env.CSV_COLUMNS ?? '').split(','),
         header: process.env.HEADER == 'true',
         encoding: process.env.ENCODING as fs.WriteFileOptions,
         utf_bom: process.env.UTF_BOM == 'true',

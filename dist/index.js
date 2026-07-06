@@ -1621,6 +1621,51 @@ var require_csvwriter = __commonJS({
   }
 });
 
+// node_modules/is-utf8/is-utf8.js
+var require_is_utf8 = __commonJS({
+  "node_modules/is-utf8/is-utf8.js"(exports2, module2) {
+    exports2 = module2.exports = function(bytes) {
+      var i = 0;
+      while (i < bytes.length) {
+        if (
+          // ASCII
+          bytes[i] == 9 || bytes[i] == 10 || bytes[i] == 13 || 32 <= bytes[i] && bytes[i] <= 126
+        ) {
+          i += 1;
+          continue;
+        }
+        if (
+          // non-overlong 2-byte
+          194 <= bytes[i] && bytes[i] <= 223 && (128 <= bytes[i + 1] && bytes[i + 1] <= 191)
+        ) {
+          i += 2;
+          continue;
+        }
+        if (
+          // excluding overlongs
+          bytes[i] == 224 && (160 <= bytes[i + 1] && bytes[i + 1] <= 191) && (128 <= bytes[i + 2] && bytes[i + 2] <= 191) || // straight 3-byte
+          (225 <= bytes[i] && bytes[i] <= 236 || bytes[i] == 238 || bytes[i] == 239) && (128 <= bytes[i + 1] && bytes[i + 1] <= 191) && (128 <= bytes[i + 2] && bytes[i + 2] <= 191) || // excluding surrogates
+          bytes[i] == 237 && (128 <= bytes[i + 1] && bytes[i + 1] <= 159) && (128 <= bytes[i + 2] && bytes[i + 2] <= 191)
+        ) {
+          i += 3;
+          continue;
+        }
+        if (
+          // planes 1-3
+          bytes[i] == 240 && (144 <= bytes[i + 1] && bytes[i + 1] <= 191) && (128 <= bytes[i + 2] && bytes[i + 2] <= 191) && (128 <= bytes[i + 3] && bytes[i + 3] <= 191) || // planes 4-15
+          241 <= bytes[i] && bytes[i] <= 243 && (128 <= bytes[i + 1] && bytes[i + 1] <= 191) && (128 <= bytes[i + 2] && bytes[i + 2] <= 191) && (128 <= bytes[i + 3] && bytes[i + 3] <= 191) || // plane 16
+          bytes[i] == 244 && (128 <= bytes[i + 1] && bytes[i + 1] <= 143) && (128 <= bytes[i + 2] && bytes[i + 2] <= 191) && (128 <= bytes[i + 3] && bytes[i + 3] <= 191)
+        ) {
+          i += 4;
+          continue;
+        }
+        return false;
+      }
+      return true;
+    };
+  }
+});
+
 // src/main.ts
 var fs2 = __toESM(require("fs"));
 var path = __toESM(require("path"));
@@ -1647,7 +1692,7 @@ function initOptions() {
     multi: process.env.MULTI == "true",
     input: process.env.INPUT,
     output: process.env.OUTPUT,
-    columns: (process.env.COLUMNS ?? "").split(","),
+    columns: (process.env.CSV_COLUMNS ?? "").split(","),
     header: process.env.HEADER == "true",
     encoding: process.env.ENCODING,
     utf_bom: process.env.UTF_BOM == "true",
@@ -1668,6 +1713,139 @@ function initOptions() {
 var fs = __toESM(require("fs"));
 var import_csv_parser = __toESM(require_csv_parser());
 var import_csvwriter = __toESM(require_csvwriter());
+
+// node_modules/first-chunk-stream/index.js
+var import_node_buffer = require("node:buffer");
+var import_node_stream = require("node:stream");
+var stop = /* @__PURE__ */ Symbol("FirstChunkStream.stop");
+var FirstChunkStream = class extends import_node_stream.Duplex {
+  constructor(options, callback) {
+    const state = {
+      isSent: false,
+      chunks: [],
+      size: 0
+    };
+    if (typeof options !== "object" || options === null) {
+      throw new TypeError("FirstChunkStream constructor requires `options` to be an object.");
+    }
+    if (typeof callback !== "function") {
+      throw new TypeError("FirstChunkStream constructor requires a callback as its second argument.");
+    }
+    if (typeof options.chunkSize !== "number") {
+      throw new TypeError("FirstChunkStream constructor requires `options.chunkSize` to be a number.");
+    }
+    if (options.objectMode) {
+      throw new Error("FirstChunkStream doesn't support `objectMode` yet.");
+    }
+    super(options);
+    state.manager = createReadStreamBackpressureManager(this);
+    const processCallback = (buffer, encoding2, done) => {
+      state.isSent = true;
+      (async () => {
+        let result;
+        try {
+          result = await callback(buffer, encoding2);
+        } catch (error) {
+          setImmediate(() => {
+            this.emit("error", error);
+            done();
+          });
+          return;
+        }
+        if (result === stop) {
+          state.manager.programPush(null, void 0, done);
+        } else if (import_node_buffer.Buffer.isBuffer(result) || result instanceof Uint8Array || typeof result === "string") {
+          state.manager.programPush(result, void 0, done);
+        } else {
+          state.manager.programPush(result.buffer, result.encoding, done);
+        }
+      })();
+    };
+    this._write = (chunk, encoding2, done) => {
+      state.encoding = encoding2;
+      if (state.isSent) {
+        state.manager.programPush(chunk, state.encoding, done);
+      } else if (chunk.length < options.chunkSize - state.size) {
+        state.chunks.push(chunk);
+        state.size += chunk.length;
+        done();
+      } else {
+        state.chunks.push(chunk.slice(0, options.chunkSize - state.size));
+        chunk = chunk.slice(options.chunkSize - state.size);
+        state.size += state.chunks[state.chunks.length - 1].length;
+        processCallback(import_node_buffer.Buffer.concat(state.chunks, state.size), state.encoding, () => {
+          if (chunk.length === 0) {
+            done();
+            return;
+          }
+          state.manager.programPush(chunk, state.encoding, done);
+        });
+      }
+    };
+    this.on("finish", () => {
+      if (!state.isSent) {
+        return processCallback(import_node_buffer.Buffer.concat(state.chunks, state.size), state.encoding, () => {
+          state.manager.programPush(null, state.encoding);
+        });
+      }
+      state.manager.programPush(null, state.encoding);
+    });
+  }
+};
+function createReadStreamBackpressureManager(readableStream) {
+  const manager = {
+    waitPush: true,
+    programmedPushs: [],
+    programPush(chunk, encoding2, isDone = () => {
+    }) {
+      manager.programmedPushs.push([chunk, encoding2, isDone]);
+      setImmediate(manager.attemptPush);
+      readableStream.emit("readable");
+      readableStream.emit("drain");
+    },
+    attemptPush() {
+      let nextPush;
+      if (manager.waitPush) {
+        if (manager.programmedPushs.length > 0) {
+          nextPush = manager.programmedPushs.shift();
+          manager.waitPush = readableStream.push(nextPush[0], nextPush[1]);
+          nextPush[2]();
+        }
+      } else {
+        setImmediate(() => {
+          readableStream.emit("readable");
+        });
+      }
+    }
+  };
+  function streamFilterRestoreRead() {
+    manager.waitPush = true;
+    setImmediate(manager.attemptPush);
+  }
+  readableStream._read = streamFilterRestoreRead;
+  return manager;
+}
+FirstChunkStream.stop = stop;
+
+// node_modules/strip-bom-buf/index.js
+var import_node_buffer2 = require("node:buffer");
+var import_is_utf8 = __toESM(require_is_utf8(), 1);
+function strimBomBuffer(buffer) {
+  if (!import_node_buffer2.Buffer.isBuffer(buffer)) {
+    throw new TypeError(`Expected a \`Buffer\`, got \`${typeof buffer}\``);
+  }
+  if (buffer[0] === 239 && buffer[1] === 187 && buffer[2] === 191 && (0, import_is_utf8.default)(buffer)) {
+    return buffer.slice(3);
+  }
+  return buffer;
+}
+
+// node_modules/strip-bom-stream/index.js
+function stripBomStream() {
+  return new FirstChunkStream({ chunkSize: 3 }, (chunk, _encoding) => strimBomBuffer(chunk));
+}
+
+// src/convert.ts
 var DELETED_MARKER = "[DELETED]";
 var DELETED_PREFIX = " former ";
 var WEBLATE_COLUMNS = ["location", "source", "target", "ID", "fuzzy", "context", "translator_comments", "developer_comments"];
@@ -1676,7 +1854,7 @@ async function convertMonolingual(input2, output2) {
   const previousValues = /* @__PURE__ */ new Map();
   if (fs.existsSync(output2)) {
     await new Promise((resolve, reject) => {
-      fs.createReadStream(output2).pipe((0, import_csv_parser.default)()).on("data", (data) => {
+      fs.createReadStream(output2).pipe(stripBomStream()).pipe((0, import_csv_parser.default)()).on("data", (data) => {
         if (data["context"] && data["source"]) {
           previousValues.set(data["context"] + data["source"], data);
         }
@@ -1692,28 +1870,31 @@ async function convertMonolingual(input2, output2) {
   const discrepancies = new Array();
   const parserOptions = {
     headers: header ? void 0 : false,
-    mapHeaders: ({ header: header2, index }) => columns[index],
     separator
   };
   await new Promise((resolve, reject) => {
-    fs.createReadStream(input2).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
+    fs.createReadStream(input2).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
       lineNumber++;
-      const index = (data["context"] ?? "") + data["source"];
+      const column = Object.values(data);
+      const context2 = column[columns.indexOf("context")] ?? "";
+      const source = column[columns.indexOf("source")];
+      const target = column[columns.indexOf("target")];
+      const index = context2 + source;
       const row = {
         location: `${input2}:${lineNumber}`,
-        source: data["source"],
-        target: data["target"],
-        ID: data["ID"] ?? "",
-        context: data["context"] ?? "",
-        translator_comments: data["translator_comments"] ?? "",
-        developer_comments: data["developer_comments"] ?? ""
+        source,
+        target,
+        ID: column[columns.indexOf("ID")] ?? "",
+        context: column[columns.indexOf("context")] ?? "",
+        translator_comments: column[columns.indexOf("translator_comments")] ?? "",
+        developer_comments: column[columns.indexOf("developer_comments")] ?? ""
       };
       if (previousValues.has(index)) {
         const previousRow = previousValues.get(index);
         previousValues.delete(index);
-        if (previousRow["target"] != data["target"]) {
+        if (previousRow["target"] != target) {
           if (overwrite == false) row["target"] = previousRow["target"];
-          discrepancies.push(`  * ${data["context"]}, ${data["source"]}: ${data["target"]} <> ${previousRow["target"]}`.replace("\r\n", "\\n").replace("\r", "\\n"));
+          discrepancies.push(`  * ${context2}, ${source}: ${target} <> ${previousRow["target"]}`.replace("\r\n", "\\n").replace("\r", "\\n"));
           row["fuzzy"] = "True";
         } else {
           row["fuzzy"] = previousRow["fuzzy"];
@@ -1749,7 +1930,7 @@ async function convertMonolingual(input2, output2) {
     crlf: true,
     delimiter: separator,
     fields: WEBLATE_COLUMNS.join(","),
-    header,
+    header: true,
     quoteMode: 1
     // always quote
   };
@@ -1781,10 +1962,16 @@ async function inverseConvertMonolingual(input2, output2) {
   let sourceColumn = "";
   let targetColumn = "";
   let header2 = [];
+  if (!header) {
+    for (let i = 0; i < columns.length; i++) header2.push(String(i));
+    contextColumn = header2[columns.indexOf("context")];
+    sourceColumn = header2[columns.indexOf("source")];
+    targetColumn = header2[columns.indexOf("target")];
+  }
   const preValues = /* @__PURE__ */ new Map();
-  if (header && fs.existsSync(output2)) {
+  if (fs.existsSync(output2)) {
     await new Promise((resolve, reject) => {
-      fs.createReadStream(output2).pipe((0, import_csv_parser.default)(outParserOptions)).on("headers", (head) => {
+      fs.createReadStream(output2).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(outParserOptions)).on("headers", (head) => {
         header2 = head;
         contextColumn = header2[columns.indexOf("context")];
         sourceColumn = header2[columns.indexOf("source")];
@@ -1796,11 +1983,6 @@ async function inverseConvertMonolingual(input2, output2) {
         reject(error);
       });
     });
-  } else {
-    for (let i = 0; i < columns.length; i++) header2.push(String(i));
-    contextColumn = header2[columns.indexOf("context")];
-    sourceColumn = header2[columns.indexOf("source")];
-    targetColumn = header2[columns.indexOf("target")];
   }
   const columnMap = {};
   WEBLATE_COLUMNS.forEach((key) => {
@@ -1812,13 +1994,13 @@ async function inverseConvertMonolingual(input2, output2) {
     mapHeaders: ({ header: header3, index }) => columnMap[header3],
     separator
   };
-  let lines = 0;
+  let updates = 0;
   await new Promise((resolve, reject) => {
-    fs.createReadStream(input2).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
+    fs.createReadStream(input2).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
       const index = (data[contextColumn] ?? "") + data[sourceColumn];
-      if (preValues[index] && preValues[index][targetColumn]) {
+      if (preValues[index] && preValues[index][targetColumn] != void 0) {
         if (preValues[index][targetColumn] != data[targetColumn]) {
-          lines++;
+          updates++;
           preValues[index][targetColumn] = data[targetColumn];
         }
       }
@@ -1844,7 +2026,7 @@ async function inverseConvertMonolingual(input2, output2) {
   });
   return `in: ${input2}
 out: ${output2}
-updated lines: ${lines}`;
+updated lines: ${updates}`;
 }
 
 // src/main.ts

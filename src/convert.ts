@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import csvParser from 'csv-parser';
 import csvWriter from 'csvwriter';
 import * as options from './options';
+import stripBom from 'strip-bom-stream';
 
 const DELETED_MARKER = '[DELETED]';
 const DELETED_PREFIX = ' former ';
@@ -15,6 +16,7 @@ export async function convertMonolingual(input: string, output: string) : Promis
     if (fs.existsSync(output)) {
         await new Promise((resolve, reject) => {
             fs.createReadStream(output)
+                .pipe(stripBom())
                 .pipe(csvParser())
                 .on('data', (data) => {
                     if (data['context'] && data['source']) {
@@ -34,25 +36,29 @@ export async function convertMonolingual(input: string, output: string) : Promis
 
     const parserOptions : csvParser.Options = {
         headers: options.header ? undefined : false,
-        mapHeaders: ({ header, index }) => options.columns[index],
         separator: options.separator
     };
 
     await new Promise((resolve, reject) => {
         fs.createReadStream(input)
+            .pipe(stripBom())
             .pipe(csvParser(parserOptions))
             .on('data', (data: Object) => {
 
                 lineNumber++;
-                const index = (data['context'] ?? '') + data['source'];
+                const column = Object.values(data);
+                const context = column[options.columns.indexOf('context')] ?? '';
+                const source = column[options.columns.indexOf('source')];
+                const target = column[options.columns.indexOf('target')];
+                const index = context + source;
                 const row = {
                     location: `${input}:${lineNumber}`,
-                    source: data['source'],
-                    target: data['target'],
-                    ID: data['ID'] ?? '',
-                    context: data['context'] ?? '',
-                    translator_comments: data['translator_comments'] ?? '',
-                    developer_comments: data['developer_comments'] ?? ''
+                    source: source,
+                    target: target,
+                    ID: column[options.columns.indexOf('ID')] ?? '',
+                    context: column[options.columns.indexOf('context')] ?? '',
+                    translator_comments: column[options.columns.indexOf('translator_comments')] ?? '',
+                    developer_comments: column[options.columns.indexOf('developer_comments')]  ?? ''
                 };
 
                 if (previousValues.has(index)) {
@@ -60,9 +66,9 @@ export async function convertMonolingual(input: string, output: string) : Promis
                     const previousRow: Object = previousValues.get(index);
                     previousValues.delete(index);
 
-                    if (previousRow['target'] != data['target']) {
+                    if (previousRow['target'] != target) {
                         if (options.overwrite == false) row['target'] = previousRow['target'];
-                        discrepancies.push(`  * ${data['context']}, ${data['source']}: ${data['target']} <> ${previousRow['target']}`.replace('\r\n', '\\n').replace('\r', '\\n'));
+                        discrepancies.push(`  * ${context}, ${source}: ${target} <> ${previousRow['target']}`.replace('\r\n', '\\n').replace('\r', '\\n'));
                         row['fuzzy'] = 'True';
                     } else {
                         row['fuzzy'] = previousRow['fuzzy'];
@@ -105,7 +111,7 @@ export async function convertMonolingual(input: string, output: string) : Promis
         crlf: true,
         delimiter: options.separator,
         fields: WEBLATE_COLUMNS.join(','),
-        header: options.header,
+        header: true,
         quoteMode: 1    // always quote
     };
 
@@ -142,10 +148,17 @@ export async function inverseConvertMonolingual(input: string, output: string) :
     let targetColumn = '';
 
     let header: Array<string> = [];
+    if (!options.header) {
+        for (let i=0; i<options.columns.length; i++) header.push(String(i));
+        contextColumn = header[options.columns.indexOf('context')];
+        sourceColumn = header[options.columns.indexOf('source')];
+        targetColumn = header[options.columns.indexOf('target')];
+    }
     const preValues = new Map<string, Object>();
-    if (options.header && fs.existsSync(output)) {
+    if (fs.existsSync(output)) {
         await new Promise((resolve, reject) => {
             fs.createReadStream(output)
+                .pipe(stripBom())
                 .pipe(csvParser(outParserOptions))
                 .on('headers', (head) => {
                     header = head;
@@ -153,18 +166,13 @@ export async function inverseConvertMonolingual(input: string, output: string) :
                     sourceColumn = header[options.columns.indexOf('source')];
                     targetColumn = header[options.columns.indexOf('target')];
                 })
-                .on('data', (data) => { 
+                .on('data', (data) => {
                     const index = (data[contextColumn] ?? '') + data[sourceColumn];
                     preValues[index] = data;
                 })
                 .on('end', resolve)
                 .on('error', (error) => { reject(error) });
             });
-    } else {
-        for (let i=0; i<options.columns.length; i++) header.push(String(i));
-        contextColumn = header[options.columns.indexOf('context')];
-        sourceColumn = header[options.columns.indexOf('source')];
-        targetColumn = header[options.columns.indexOf('target')];
     }
 
     const columnMap = {};
@@ -179,16 +187,17 @@ export async function inverseConvertMonolingual(input: string, output: string) :
         separator: options.separator
     };
 
-    let lines = 0;
+    let updates = 0;
     await new Promise((resolve, reject) => {
         fs.createReadStream(input)
+            .pipe(stripBom())
             .pipe(csvParser(parserOptions))
             .on('data', (data: Object) => {
                 const index = (data[contextColumn] ?? '') + data[sourceColumn];
-                if (preValues[index] && preValues[index][targetColumn]) {
+                if (preValues[index] && preValues[index][targetColumn] != undefined) {
                     // updated translations
                     if (preValues[index][targetColumn] != data[targetColumn]) {
-                        lines++;
+                        updates++;
                         preValues[index][targetColumn] = data[targetColumn];
                     }
                 }
@@ -218,6 +227,6 @@ export async function inverseConvertMonolingual(input: string, output: string) :
 
     return `in: ${input}
 out: ${output}
-updated lines: ${lines}`;
+updated lines: ${updates}`;
 
 }

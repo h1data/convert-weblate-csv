@@ -65,7 +65,7 @@ $[[ inputs.job_name ]]:
     MULTI: "$[[ inputs.multi ]]"
     INPUT: "$[[ inputs.input ]]"
     OUTPUT: "$[[ inputs.output ]]"
-    COLUMNS: "$[[ inputs.columns ]]"
+    CSV_COLUMNS: "$[[ inputs.columns ]]"
     HEADER: "$[[ inputs.header ]]"
     ENCODING: "$[[ inputs.encoding ]]"
     UTF_BOM: "$[[ inputs.utf_bom ]]"
