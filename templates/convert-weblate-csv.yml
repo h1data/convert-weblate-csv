@@ -34,7 +34,7 @@ spec:
       description: Whether if the original CSV has BOM when its encoding is UTF8
       type: boolean
       default: false
-    crlf:
+    linefeed:
       description: Whether if the linefeed of the original CSV is CRLF or LF
       options:
         - CRLF
@@ -69,7 +69,7 @@ $[[ inputs.job_name ]]:
     HEADER: "$[[ inputs.header ]]"
     ENCODING: "$[[ inputs.encoding ]]"
     UTF_BOM: "$[[ inputs.utf_bom ]]"
-    CRLF: "$[[ inputs.crlf ]]"
+    LINEFEED: "$[[ inputs.linefeed ]]"
     SEPARATOR: "$[[ inputs.separator ]]"
     STATS_FILE: "$[[ inputs.stats_file ]]"
     OBSOLETE: "$[[ inputs.obsolete ]]"

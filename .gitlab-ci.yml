@@ -61,7 +61,7 @@ include:
       header: false
       encoding: utf8
       utf_bom: false
-      crlf: CRLF
+      linefeed: CRLF
       separator: ","
       obsolete: true
       quoting: false
@@ -87,7 +87,7 @@ include:
       header: false
       encoding: utf8
       utf_bom: true
-      crlf: CRLF
+      linefeed: CRLF
       separator: ","
       obsolete: true
       quoting: false

@@ -10,7 +10,7 @@ export const columns = self.columns;
 export const header = self.header;
 export const encoding = self.encoding;
 export const utf_bom = self.utf_bom;
-export const CRLF = self.CRLF;
+export const CRLF = self.linefeed;
 export const separator = self.separator;
 export const obsolete = self.obsolete;
 export const overwrite = self.overwrite;
@@ -27,7 +27,7 @@ export interface INPUTS {
     readonly header: boolean,
     readonly encoding: fs.WriteFileOptions,
     readonly utf_bom: boolean,
-    readonly CRLF: boolean,
+    readonly linefeed: boolean,
     readonly separator: string,
     readonly obsolete: boolean,
     readonly overwrite: boolean,
@@ -45,7 +45,7 @@ function initOptions() : INPUTS {
         header: process.env.HEADER == 'true',
         encoding: process.env.ENCODING as fs.WriteFileOptions,
         utf_bom: process.env.UTF_BOM == 'true',
-        CRLF: process.env.CRLF == 'CRLF',
+        linefeed: process.env.LINEFEED == 'CRLF',
         separator: process.env.SEPARATOR as string,
         obsolete: process.env.OBSOLETE == 'true',
         overwrite: process.env.OVERWRITE == 'true',
