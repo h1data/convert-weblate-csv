@@ -66,12 +66,13 @@ export async function convertMonolingual(input: string, output: string) : Promis
                     const previousRow: Object = previousValues.get(index);
                     previousValues.delete(index);
 
+                    row['fuzzy'] = previousRow['fuzzy'];
                     if (previousRow['target'] != target) {
-                        if (options.overwrite == false) row['target'] = previousRow['target'];
+                        if (options.overwrite == false) {
+                            row['target'] = previousRow['target'];
+                            row['fuzzy'] = 'True';  
+                        } 
                         discrepancies.push(`  * ${context}, ${source}: ${target} <> ${previousRow['target']}`.replace('\r\n', '\\n').replace('\r', '\\n'));
-                        row['fuzzy'] = 'True';
-                    } else {
-                        row['fuzzy'] = previousRow['fuzzy'];
                     }
 
                     if (options.obsolete && String(previousRow['developer_comments']).includes(DELETED_MARKER) ) {
