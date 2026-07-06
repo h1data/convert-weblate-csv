@@ -170,6 +170,7 @@ export async function inverseConvertMonolingual(input: string, output: string) :
             columnMap[key] = header[options.columns.indexOf(key)];
         }
     });
+    console.log(header, columnMap);
 
     const parserOptions : csvParser.Options = {
         headers: options.header ? undefined : false,
