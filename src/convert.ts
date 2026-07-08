@@ -67,12 +67,12 @@ export async function convertMonolingual(input: string, output: string) : Promis
                     previousValues.delete(index);
 
                     row['fuzzy'] = previousRow['fuzzy'];
-                    if (target != '' && previousRow['target'] != target) {
+                    if (previousRow['target'] != target) {
                         if (options.overwrite == false) {
                             row['target'] = previousRow['target'];
-                            row['fuzzy'] = 'True';  
+                            if (target != '') row['fuzzy'] = 'True';  
                         } 
-                        discrepancies.push(`  * ${context}, ${source}: ${target} <> ${previousRow['target']}`.replace('\r\n', '\\n').replace('\r', '\\n'));
+                        if (target != '') discrepancies.push(`  * ${context}, ${source}: ${target} <> ${previousRow['target']}`.replace('\r\n', '\\n').replace('\r', '\\n'));
                     }
 
                     if (options.obsolete && String(previousRow['developer_comments']).includes(DELETED_MARKER) ) {
