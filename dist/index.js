@@ -1893,12 +1893,12 @@ async function convertMonolingual(input2, output2) {
         const previousRow = previousValues.get(index);
         previousValues.delete(index);
         row["fuzzy"] = previousRow["fuzzy"];
-        if (target != "" && previousRow["target"] != target) {
+        if (previousRow["target"] != target) {
           if (overwrite == false) {
             row["target"] = previousRow["target"];
-            row["fuzzy"] = "True";
+            if (target != "") row["fuzzy"] = "True";
           }
-          discrepancies.push(`  * ${context2}, ${source}: ${target} <> ${previousRow["target"]}`.replace("\r\n", "\\n").replace("\r", "\\n"));
+          if (target != "") discrepancies.push(`  * ${context2}, ${source}: ${target} <> ${previousRow["target"]}`.replace("\r\n", "\\n").replace("\r", "\\n"));
         }
         if (obsolete && String(previousRow["developer_comments"]).includes(DELETED_MARKER)) {
           newCount++;
