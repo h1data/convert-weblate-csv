@@ -47,18 +47,18 @@ export async function convertMonolingual(input: string, output: string) : Promis
 
                 lineNumber++;
                 const column = Object.values(data);
-                const context = column[options.columns.indexOf('context')] ?? '';
-                const source = column[options.columns.indexOf('source')];
-                const target = column[options.columns.indexOf('target')];
+                const context = escapeLikeExcel(column[options.columns.indexOf('context')] ?? '');
+                const source = escapeLikeExcel(column[options.columns.indexOf('source')]);
+                const target = escapeLikeExcel(column[options.columns.indexOf('target')]);
                 const index = context + source;
                 const row = {
                     location: `${input}:${lineNumber}`,
                     source: source,
                     target: target,
-                    ID: column[options.columns.indexOf('ID')] ?? '',
+                    ID: escapeLikeExcel(column[options.columns.indexOf('ID')] ?? ''),
                     context: column[options.columns.indexOf('context')] ?? '',
-                    translator_comments: column[options.columns.indexOf('translator_comments')] ?? '',
-                    developer_comments: column[options.columns.indexOf('developer_comments')]  ?? ''
+                    translator_comments: escapeLikeExcel(column[options.columns.indexOf('translator_comments')] ?? ''),
+                    developer_comments: escapeLikeExcel(column[options.columns.indexOf('developer_comments')]  ?? '')
                 };
 
                 if (previousValues.has(index)) {
@@ -230,4 +230,18 @@ export async function inverseConvertMonolingual(input: string, output: string) :
 out: ${output}
 updated lines: ${updates}`;
 
+}
+
+/**
+ * prepend a single quotation if value starts with =, +, -, or @
+ * @param value 
+ * @returns escaped string
+ */
+function escapeLikeExcel(value: unknown): string {
+    const text = String(value ?? '');
+    if (text === '') return '';
+    if (/^[=+\-@]/.test(text)) {
+        return `'${text}`;
+    }
+    return text;
 }
