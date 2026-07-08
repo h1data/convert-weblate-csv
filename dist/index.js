@@ -1893,7 +1893,7 @@ async function convertMonolingual(input2, output2) {
         const previousRow = previousValues.get(index);
         previousValues.delete(index);
         row["fuzzy"] = previousRow["fuzzy"];
-        if (previousRow["target"] != target) {
+        if (target != "" && previousRow["target"] != target) {
           if (overwrite == false) {
             row["target"] = previousRow["target"];
             row["fuzzy"] = "True";
