@@ -3,4 +3,5 @@
 "test/single/original/localization_ja.csv:3","Farewell...
 and good bye!","さようなら！","","False","GREETING","",""
 "test/single/original/localization_ja.csv:4","Start","開始","","False","MENU","",""
+"test/single/original/localization_ja.csv:5","Resume","戻る","","False","MENU","",""
 "[DELETED] former test/single/original/localization_ja.csv:5","Quit","終了","","False","MENU","","[DELETED]"

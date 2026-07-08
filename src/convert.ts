@@ -67,7 +67,7 @@ export async function convertMonolingual(input: string, output: string) : Promis
                     previousValues.delete(index);
 
                     row['fuzzy'] = previousRow['fuzzy'];
-                    if (previousRow['target'] != target) {
+                    if (target != '' && previousRow['target'] != target) {
                         if (options.overwrite == false) {
                             row['target'] = previousRow['target'];
                             row['fuzzy'] = 'True';  
