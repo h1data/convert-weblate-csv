@@ -30,11 +30,11 @@ function initOptions() {
         columns: getInput('COLUMNS').split(','),
         header: getInput('HEADER', 'true') == 'true',
         encoding: getInput('ENCODING', 'utf8') as fs.WriteFileOptions,
-        utf_bom: getInput('UTF_BOM') == 'true',
+        utf_bom: getInput('UTF_BOM', 'false') == 'true',
         linefeed: getInput('LINEFEED', 'CRLF') == 'CRLF',
         separator: getInput('SEPARATOR', ',') as string,
-        obsolete: getInput('OBSOLETE') == 'true',
-        overwrite: getInput('OVERWRITE') == 'true',
+        obsolete: getInput('OBSOLETE', 'true') == 'true',
+        overwrite: getInput('OVERWRITE', 'false') == 'true',
         isQuote: getInput('QUOTING', 'false') == 'true'
     };
 
