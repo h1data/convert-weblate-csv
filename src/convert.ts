@@ -35,8 +35,8 @@ export async function convertMonolingual(input: string, output: string) : Promis
     const discrepancies = new Array<string>;
 
     const parserOptions : csvParser.Options = {
-        headers: options.header ? undefined : false,
-        separator: options.separator
+        headers: options.HEADER ? undefined : false,
+        separator: options.SEPARATOR
     };
 
     await new Promise((resolve, reject) => {
@@ -47,18 +47,18 @@ export async function convertMonolingual(input: string, output: string) : Promis
 
                 lineNumber++;
                 const column = Object.values(data);
-                const context = escapeLikeExcel(column[options.columns.indexOf('context')] ?? '');
-                const source = escapeLikeExcel(column[options.columns.indexOf('source')]);
-                const target = escapeLikeExcel(column[options.columns.indexOf('target')]);
+                const context = escapeLikeExcel(column[options.COLUMNS.indexOf('context')] ?? '');
+                const source = escapeLikeExcel(column[options.COLUMNS.indexOf('source')]);
+                const target = escapeLikeExcel(column[options.COLUMNS.indexOf('target')]);
                 const index = context + source;
                 const row = {
                     location: `${input}:${lineNumber}`,
                     source: source,
                     target: target,
-                    ID: escapeLikeExcel(column[options.columns.indexOf('ID')] ?? ''),
-                    context: column[options.columns.indexOf('context')] ?? '',
-                    translator_comments: escapeLikeExcel(column[options.columns.indexOf('translator_comments')] ?? ''),
-                    developer_comments: escapeLikeExcel(column[options.columns.indexOf('developer_comments')]  ?? '')
+                    ID: escapeLikeExcel(column[options.COLUMNS.indexOf('ID')] ?? ''),
+                    context: column[options.COLUMNS.indexOf('context')] ?? '',
+                    translator_comments: escapeLikeExcel(column[options.COLUMNS.indexOf('translator_comments')] ?? ''),
+                    developer_comments: escapeLikeExcel(column[options.COLUMNS.indexOf('developer_comments')]  ?? '')
                 };
 
                 if (previousValues.has(index)) {
@@ -68,14 +68,14 @@ export async function convertMonolingual(input: string, output: string) : Promis
 
                     row['fuzzy'] = previousRow['fuzzy'];
                     if (previousRow['target'] != target) {
-                        if (options.overwrite == false) {
+                        if (options.OVERWRITE == false) {
                             row['target'] = previousRow['target'];
                             if (target != '') row['fuzzy'] = 'True';  
                         } 
                         if (target != '') discrepancies.push(`  * ${context}, ${source}: ${target} <> ${previousRow['target']}`.replace('\r\n', '\\n').replace('\r', '\\n'));
                     }
 
-                    if (options.obsolete && String(previousRow['developer_comments']).includes(DELETED_MARKER) ) {
+                    if (options.OBSOLETE && String(previousRow['developer_comments']).includes(DELETED_MARKER) ) {
                         // returned from obsolete
                         newCount++;
                     }
@@ -92,11 +92,11 @@ export async function convertMonolingual(input: string, output: string) : Promis
         });
 
     for (const value of previousValues.values()) {
-        if (options.obsolete) {
+        if (options.OBSOLETE) {
             // append deleted rows
             if (!String(value['developer_comments']).includes(DELETED_MARKER) ) {
                 deletedCount++;
-                if (options.obsolete) {
+                if (options.OBSOLETE) {
                     value['fuzzy'] = 'True';
                     value['location'] = DELETED_MARKER + DELETED_PREFIX + value['location'];
                     value['developer_comments'] = DELETED_MARKER + ' ' + value['developer_comments'];
@@ -110,7 +110,7 @@ export async function convertMonolingual(input: string, output: string) : Promis
 
     const csvWriterOptions = {
         crlf: true,
-        delimiter: options.separator,
+        delimiter: options.SEPARATOR,
         fields: WEBLATE_COLUMNS.join(','),
         header: true,
         quoteMode: 1    // always quote
@@ -118,8 +118,8 @@ export async function convertMonolingual(input: string, output: string) : Promis
 
     await csvWriter(outputValues, csvWriterOptions, (error, csv) => {
         if (error) throw error;
-        const dataToWrite = options.utf_bom ? '\uFEFF' + csv : csv;
-        fs.writeFileSync(output, dataToWrite, options.encoding);
+        const dataToWrite = options.UTF_BOM ? '\uFEFF' + csv : csv;
+        fs.writeFileSync(output, dataToWrite, options.ENCODING);
     })
 
     const stats: Array<string> = [];
@@ -140,8 +140,8 @@ export async function inverseConvertMonolingual(input: string, output: string) :
     console.info(`Converting from ${input} to ${output} ...`);
 
     const outParserOptions = {
-        headers: options.header ? undefined : false,
-        separator: options.separator
+        headers: options.HEADER ? undefined : false,
+        separator: options.SEPARATOR
     };
 
     let contextColumn = '';
@@ -149,11 +149,11 @@ export async function inverseConvertMonolingual(input: string, output: string) :
     let targetColumn = '';
 
     let header: Array<string> = [];
-    if (!options.header) {
-        for (let i=0; i<options.columns.length; i++) header.push(String(i));
-        contextColumn = header[options.columns.indexOf('context')];
-        sourceColumn = header[options.columns.indexOf('source')];
-        targetColumn = header[options.columns.indexOf('target')];
+    if (!options.HEADER) {
+        for (let i=0; i<options.COLUMNS.length; i++) header.push(String(i));
+        contextColumn = header[options.COLUMNS.indexOf('context')];
+        sourceColumn = header[options.COLUMNS.indexOf('source')];
+        targetColumn = header[options.COLUMNS.indexOf('target')];
     }
     const preValues = new Map<string, Object>();
     if (fs.existsSync(output)) {
@@ -163,9 +163,9 @@ export async function inverseConvertMonolingual(input: string, output: string) :
                 .pipe(csvParser(outParserOptions))
                 .on('headers', (head) => {
                     header = head;
-                    contextColumn = header[options.columns.indexOf('context')];
-                    sourceColumn = header[options.columns.indexOf('source')];
-                    targetColumn = header[options.columns.indexOf('target')];
+                    contextColumn = header[options.COLUMNS.indexOf('context')];
+                    sourceColumn = header[options.COLUMNS.indexOf('source')];
+                    targetColumn = header[options.COLUMNS.indexOf('target')];
                 })
                 .on('data', (data) => {
                     const index = (data[contextColumn] ?? '') + data[sourceColumn];
@@ -178,14 +178,14 @@ export async function inverseConvertMonolingual(input: string, output: string) :
 
     const columnMap = {};
     WEBLATE_COLUMNS.forEach( (key) => {
-        if (options.columns.includes(key)) {
-            columnMap[key] = header[options.columns.indexOf(key)];
+        if (options.COLUMNS.includes(key)) {
+            columnMap[key] = header[options.COLUMNS.indexOf(key)];
         }
     });
 
     const parserOptions : csvParser.Options = {
         mapHeaders: ({ header, index }) => columnMap[header],
-        separator: options.separator
+        separator: options.SEPARATOR
     };
 
     let updates = 0;
@@ -209,9 +209,9 @@ export async function inverseConvertMonolingual(input: string, output: string) :
 
     const writerOptions = {
         crlf: options.CRLF,
-        delimiter: options.separator,
-        quoteMode: options.isQuote ? 1 : 0,
-        header: options.header,
+        delimiter: options.SEPARATOR,
+        quoteMode: options.IS_QUOTE ? 1 : 0,
+        header: options.HEADER,
         fields: header.join(',')
     }
 
@@ -222,8 +222,8 @@ export async function inverseConvertMonolingual(input: string, output: string) :
 
     await csvWriter(outputValues, writerOptions, (error, csv) => {
         if (error) throw error;
-        const dataToWrite = options.utf_bom ? '\uFEFF' + csv : csv;
-        fs.writeFileSync(output, dataToWrite, options.encoding);
+        const dataToWrite = options.UTF_BOM ? '\uFEFF' + csv : csv;
+        fs.writeFileSync(output, dataToWrite, options.ENCODING);
     });
 
     return `in: ${input}

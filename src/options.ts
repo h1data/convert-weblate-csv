@@ -1,55 +1,41 @@
 import * as fs from 'fs';
 
-const self: INPUTS = initOptions();
+const self = initOptions();
 
-export const invert = self.invert;
-export const multi = self.multi;
-export const input = self.input;
-export const output = self.output;
-export const columns = self.columns;
-export const header = self.header;
-export const encoding = self.encoding;
-export const utf_bom = self.utf_bom;
+export const INVERT = self.invert;
+export const MULTI = self.multi;
+export const INPUT = self.input;
+export const OUTPUT = self.output;
+export const STATS_FILE = self.stats_file;
+export const COLUMNS = self.columns;
+export const HEADER = self.header;
+export const ENCODING = self.encoding;
+export const UTF_BOM = self.utf_bom;
 export const CRLF = self.linefeed;
-export const separator = self.separator;
-export const obsolete = self.obsolete;
-export const overwrite = self.overwrite;
-export const isQuote = self.isQuote;
+export const SEPARATOR = self.separator;
+export const OBSOLETE = self.obsolete;
+export const OVERWRITE = self.overwrite;
+export const IS_QUOTE = self.isQuote;
 
 export const LANG_CODE_PLACEHOLDER : string = '*';
 
-export interface INPUTS {
-    readonly invert: boolean,
-    readonly multi: boolean,
-    readonly input: string,
-    readonly output: string,
-    readonly columns: Array<string>,
-    readonly header: boolean,
-    readonly encoding: fs.WriteFileOptions,
-    readonly utf_bom: boolean,
-    readonly linefeed: boolean,
-    readonly separator: string,
-    readonly obsolete: boolean,
-    readonly overwrite: boolean,
-    readonly isQuote: boolean
-};
+function initOptions() {
 
-function initOptions() : INPUTS {
-
-    const ret: INPUTS = {
-        invert: process.env.INVERT == 'true',
-        multi: process.env.MULTI == 'true',
-        input: process.env.INPUT as string,
-        output: process.env.OUTPUT as string,
-        columns: (process.env.CSV_COLUMNS ?? '').split(','),
-        header: process.env.HEADER == 'true',
-        encoding: process.env.ENCODING as fs.WriteFileOptions,
-        utf_bom: process.env.UTF_BOM == 'true',
-        linefeed: process.env.LINEFEED == 'CRLF',
-        separator: process.env.SEPARATOR as string,
-        obsolete: process.env.OBSOLETE == 'true',
-        overwrite: process.env.OVERWRITE == 'true',
-        isQuote: process.env.QUOTING == 'true'
+    const ret = {
+        invert: getInput('INVERT') == 'true',
+        multi: getInput('MULTI') == 'true',
+        input: getInput('INPUT'),
+        output: getInput('OUTPUT'),
+        stats_file: getInput('STATS_FILE', 'stats.txt'),
+        columns: getInput('COLUMNS').split(','),
+        header: getInput('HEADER', 'true') == 'true',
+        encoding: getInput('ENCODING') as fs.WriteFileOptions,
+        utf_bom: getInput('UTF_BOM') == 'true',
+        linefeed: getInput('LINEFEED', 'CRLF') == 'CRLF',
+        separator: getInput('SEPARATOR', ',') as string,
+        obsolete: getInput('OBSOLETE') == 'true',
+        overwrite: getInput('OVERWRITE') == 'true',
+        isQuote: getInput('QUOTING', 'false') == 'true'
     };
 
     if ( ret.multi == false && (ret.input.includes('\*') !== ret.output.includes('\*')) ) {
@@ -61,4 +47,13 @@ function initOptions() : INPUTS {
     // TODO other check for INPUTS
 
     return ret;
+}
+
+function getInput(key: string, defaultValue: string|undefined = undefined) : string {
+    const envKey = 'INPUT_' + key
+    const value = process.env[envKey];
+    if (defaultValue !== undefined && value === undefined) {
+        throw new Error(`environment ${envKey} is not defined!`);
+    }
+    return value ?? defaultValue as string;
 }
