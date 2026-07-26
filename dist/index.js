@@ -1696,7 +1696,7 @@ function initOptions() {
     stats_file: getInput("STATS_FILE", "stats.txt"),
     columns: getInput("COLUMNS").split(","),
     header: getInput("HEADER", "true") == "true",
-    encoding: getInput("ENCODING"),
+    encoding: getInput("ENCODING", "utf8"),
     utf_bom: getInput("UTF_BOM") == "true",
     linefeed: getInput("LINEFEED", "CRLF") == "CRLF",
     separator: getInput("SEPARATOR", ","),
