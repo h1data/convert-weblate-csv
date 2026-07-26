@@ -38,7 +38,7 @@ var require_csv_parser = __commonJS({
     var defaults = {
       escape: '"',
       headers: null,
-      mapHeaders: ({ header: header2 }) => header2,
+      mapHeaders: ({ header }) => header,
       mapValues: ({ value }) => value,
       newline: "\n",
       quote: '"',
@@ -51,14 +51,14 @@ var require_csv_parser = __commonJS({
       outputByteOffset: false
     };
     var DANGEROUS_KEYS = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]);
-    function sanitizeHeader(header2) {
-      if (typeof header2 !== "string") {
+    function sanitizeHeader(header) {
+      if (typeof header !== "string") {
         return null;
       }
-      if (DANGEROUS_KEYS.has(header2)) {
+      if (DANGEROUS_KEYS.has(header)) {
         return null;
       }
-      return header2;
+      return header;
     }
     var CsvParser = class extends Transform {
       constructor(opts = {}) {
@@ -111,12 +111,12 @@ var require_csv_parser = __commonJS({
         return this.parseValue(buffer, start, y);
       }
       parseLine(buffer, start, end) {
-        const { customNewline, escape, mapHeaders, mapValues, quote, separator: separator2, skipComments, skipLines } = this.options;
+        const { customNewline, escape, mapHeaders, mapValues, quote, separator, skipComments, skipLines } = this.options;
         end--;
         if (!customNewline && buffer.length && buffer[end - 1] === cr) {
           end--;
         }
-        const comma = separator2;
+        const comma = separator;
         const cells = [];
         let isQuoted = false;
         let offset = start;
@@ -131,8 +131,8 @@ var require_csv_parser = __commonJS({
             return value;
           }
           const index = cells.length;
-          const header2 = this.headers[index];
-          return mapValues({ header: header2, index, value });
+          const header = this.headers[index];
+          return mapValues({ header, index, value });
         };
         for (let i = start; i < end; i++) {
           const isStartingQuote = !isQuoted && buffer[i] === quote;
@@ -164,8 +164,8 @@ var require_csv_parser = __commonJS({
         this.state.lineNumber++;
         if (this.state.first && !skip) {
           this.state.first = false;
-          this.headers = cells.map((header2, index) => {
-            const mapped = mapHeaders({ header: header2, index });
+          this.headers = cells.map((header, index) => {
+            const mapped = mapHeaders({ header, index });
             if (mapped === null) {
               return null;
             }
@@ -193,10 +193,10 @@ var require_csv_parser = __commonJS({
       writeRow(cells, byteOffset) {
         const headers = this.headers === false ? cells.map((value, index) => index) : this.headers;
         const row = cells.reduce((o, cell, index) => {
-          const header2 = headers[index];
-          if (header2 === null) return o;
-          if (header2 !== void 0) {
-            o[header2] = cell;
+          const header = headers[index];
+          if (header === null) return o;
+          if (header !== void 0) {
+            o[header] = cell;
           } else {
             o[`_${index}`] = cell;
           }
@@ -1463,13 +1463,13 @@ var require_csvwriter = __commonJS({
       if (!(data instanceof Array)) {
         data = [data];
       }
-      var columns2 = [];
+      var columns = [];
       var rows = [];
       data.forEach(function(d) {
-        rows.push(flatten(d, columns2, params));
+        rows.push(flatten(d, columns, params));
       });
-      columns2 = params.fields ? params.fields.split(",") : columns2;
-      callback(null, params.table ? createCLITable(rows, columns2, params) : createCSV(rows, columns2, params));
+      columns = params.fields ? params.fields.split(",") : columns;
+      callback(null, params.table ? createCLITable(rows, columns, params) : createCSV(rows, columns, params));
     }
     function applyDefaults(params) {
       params = params || {};
@@ -1500,13 +1500,13 @@ var require_csvwriter = __commonJS({
     function escapeRegExp(string) {
       return new RegExp(string.replace(/([.*+?^${}()|\[\]\/\\])/g, "\\$1"), "g");
     }
-    function createCLITable(rows, columns2, params) {
+    function createCLITable(rows, columns, params) {
       if (params.lineNumbers) {
-        columns2 = [""].concat(columns2);
+        columns = [""].concat(columns);
       }
-      var table = new Table(params.header ? { head: columns2 } : {});
+      var table = new Table(params.header ? { head: columns } : {});
       rows.forEach(function(row, rowNum) {
-        table.push(columns2.map(function(column, colNum) {
+        table.push(columns.map(function(column, colNum) {
           if (colNum === 0 && params.lineNumbers) {
             return params.zero ? rowNum : rowNum + 1;
           }
@@ -1515,19 +1515,19 @@ var require_csvwriter = __commonJS({
       });
       return table.toString();
     }
-    function createCSV(rows, columns2, params) {
+    function createCSV(rows, columns, params) {
       var newline = params.crlf === false ? "\n" : "\r\n";
       var csv = "";
       var i, ii;
-      if (columns2.length && params.header) {
+      if (columns.length && params.header) {
         if (params.lineNumbers) {
           csv += quote("", params) + params.delimiter;
         }
-        for (i = 0; i < columns2.length; i++) {
+        for (i = 0; i < columns.length; i++) {
           if (i > 0) {
             csv += params.delimiter;
           }
-          csv += quote(columns2[i], params);
+          csv += quote(columns[i], params);
         }
         csv += newline;
       }
@@ -1535,55 +1535,55 @@ var require_csvwriter = __commonJS({
         if (params.lineNumbers) {
           csv += quote(params.zero ? i : i + 1, params) + params.delimiter;
         }
-        for (ii = 0; ii < columns2.length; ii++) {
+        for (ii = 0; ii < columns.length; ii++) {
           if (ii > 0) {
             csv += params.delimiter;
           }
-          csv += quote(rows[i][columns2[ii]], params);
+          csv += quote(rows[i][columns[ii]], params);
         }
         csv += newline;
       }
       return csv;
     }
-    function flatten(data, columns2, params, path2, row) {
+    function flatten(data, columns, params, path2, row) {
       path2 = path2 || [];
       row = row || {};
       if (params.maxDepth >= 0 && path2.length > params.maxDepth + 1) {
         return row;
       }
       if (data instanceof Array) {
-        flattenArray(data, columns2, params, path2, row);
+        flattenArray(data, columns, params, path2, row);
       } else if (data instanceof Date) {
-        addField(data.toISOString(), columns2, params, path2, row);
+        addField(data.toISOString(), columns, params, path2, row);
       } else if (typeof data === "object") {
-        flattenObject(data, columns2, params, path2, row);
+        flattenObject(data, columns, params, path2, row);
       } else {
-        addField(data, columns2, params, path2, row);
+        addField(data, columns, params, path2, row);
       }
       return row;
     }
-    function flattenArray(data, columns2, params, path2, row) {
+    function flattenArray(data, columns, params, path2, row) {
       if (params.arrayDelimiter && data.length > 0 && typeof data[0] !== "object" && !(data[0] instanceof Array)) {
-        flatten(data.join(params.arrayDelimiter), columns2, params, path2, row);
+        flatten(data.join(params.arrayDelimiter), columns, params, path2, row);
       } else {
         var i;
         for (i = 0; i < data.length; i++) {
-          flatten(data[i], columns2, params, path2.concat(i), row);
+          flatten(data[i], columns, params, path2.concat(i), row);
         }
       }
     }
-    function flattenObject(data, columns2, params, path2, row) {
+    function flattenObject(data, columns, params, path2, row) {
       for (var key in data) {
         if (data.hasOwnProperty(key)) {
-          flatten(data[key], columns2, params, path2.concat(key), row);
+          flatten(data[key], columns, params, path2.concat(key), row);
         }
       }
     }
-    function addField(data, columns2, params, path2, row) {
+    function addField(data, columns, params, path2, row) {
       var field = path2.join(params.nestingDelimiter);
       row[field] = data;
-      if (columns2.indexOf(field) === -1) {
-        columns2.push(field);
+      if (columns.indexOf(field) === -1) {
+        columns.push(field);
       }
     }
     function quote(field, params) {
@@ -1672,41 +1672,51 @@ var path = __toESM(require("path"));
 
 // src/options.ts
 var self2 = initOptions();
-var invert = self2.invert;
-var multi = self2.multi;
-var input = self2.input;
-var output = self2.output;
-var columns = self2.columns;
-var header = self2.header;
-var encoding = self2.encoding;
-var utf_bom = self2.utf_bom;
+var INVERT = self2.invert;
+var MULTI = self2.multi;
+var INPUT = self2.input;
+var OUTPUT = self2.output;
+var STATS_FILE = self2.stats_file;
+var COLUMNS = self2.columns;
+var HEADER = self2.header;
+var ENCODING = self2.encoding;
+var UTF_BOM = self2.utf_bom;
 var CRLF = self2.linefeed;
-var separator = self2.separator;
-var obsolete = self2.obsolete;
-var overwrite = self2.overwrite;
-var isQuote = self2.isQuote;
+var SEPARATOR = self2.separator;
+var OBSOLETE = self2.obsolete;
+var OVERWRITE = self2.overwrite;
+var IS_QUOTE = self2.isQuote;
 var LANG_CODE_PLACEHOLDER = "*";
 function initOptions() {
   const ret = {
-    invert: process.env.INVERT == "true",
-    multi: process.env.MULTI == "true",
-    input: process.env.INPUT,
-    output: process.env.OUTPUT,
-    columns: (process.env.CSV_COLUMNS ?? "").split(","),
-    header: process.env.HEADER == "true",
-    encoding: process.env.ENCODING,
-    utf_bom: process.env.UTF_BOM == "true",
-    linefeed: process.env.LINEFEED == "CRLF",
-    separator: process.env.SEPARATOR,
-    obsolete: process.env.OBSOLETE == "true",
-    overwrite: process.env.OVERWRITE == "true",
-    isQuote: process.env.QUOTING == "true"
+    invert: getInput("INVERT") == "true",
+    multi: getInput("MULTI") == "true",
+    input: getInput("INPUT"),
+    output: getInput("OUTPUT"),
+    stats_file: getInput("STATS_FILE", "stats.txt"),
+    columns: getInput("COLUMNS").split(","),
+    header: getInput("HEADER", "true") == "true",
+    encoding: getInput("ENCODING"),
+    utf_bom: getInput("UTF_BOM") == "true",
+    linefeed: getInput("LINEFEED", "CRLF") == "CRLF",
+    separator: getInput("SEPARATOR", ","),
+    obsolete: getInput("OBSOLETE") == "true",
+    overwrite: getInput("OVERWRITE") == "true",
+    isQuote: getInput("QUOTING", "false") == "true"
   };
   if (ret.multi == false && ret.input.includes("*") !== ret.output.includes("*")) {
     console.error(`Invalid use for lang code in file names: ${ret.input}, ${ret.output}`);
     process.exit(1);
   }
   return ret;
+}
+function getInput(key, defaultValue = void 0) {
+  const envKey = "INPUT_" + key;
+  const value = process.env[envKey];
+  if (defaultValue !== void 0 && value === void 0) {
+    throw new Error(`environment ${envKey} is not defined!`);
+  }
+  return value ?? defaultValue;
 }
 
 // src/convert.ts
@@ -1739,12 +1749,12 @@ var FirstChunkStream = class extends import_node_stream.Duplex {
     }
     super(options);
     state.manager = createReadStreamBackpressureManager(this);
-    const processCallback = (buffer, encoding2, done) => {
+    const processCallback = (buffer, encoding, done) => {
       state.isSent = true;
       (async () => {
         let result;
         try {
-          result = await callback(buffer, encoding2);
+          result = await callback(buffer, encoding);
         } catch (error) {
           setImmediate(() => {
             this.emit("error", error);
@@ -1761,8 +1771,8 @@ var FirstChunkStream = class extends import_node_stream.Duplex {
         }
       })();
     };
-    this._write = (chunk, encoding2, done) => {
-      state.encoding = encoding2;
+    this._write = (chunk, encoding, done) => {
+      state.encoding = encoding;
       if (state.isSent) {
         state.manager.programPush(chunk, state.encoding, done);
       } else if (chunk.length < options.chunkSize - state.size) {
@@ -1796,9 +1806,9 @@ function createReadStreamBackpressureManager(readableStream) {
   const manager = {
     waitPush: true,
     programmedPushs: [],
-    programPush(chunk, encoding2, isDone = () => {
+    programPush(chunk, encoding, isDone = () => {
     }) {
-      manager.programmedPushs.push([chunk, encoding2, isDone]);
+      manager.programmedPushs.push([chunk, encoding, isDone]);
       setImmediate(manager.attemptPush);
       readableStream.emit("readable");
       readableStream.emit("drain");
@@ -1849,12 +1859,12 @@ function stripBomStream() {
 var DELETED_MARKER = "[DELETED]";
 var DELETED_PREFIX = " former ";
 var WEBLATE_COLUMNS = ["location", "source", "target", "ID", "fuzzy", "context", "translator_comments", "developer_comments"];
-async function convertMonolingual(input2, output2) {
-  console.info(`Converting from ${input2} to ${output2} ...`);
+async function convertMonolingual(input, output) {
+  console.info(`Converting from ${input} to ${output} ...`);
   const previousValues = /* @__PURE__ */ new Map();
-  if (fs.existsSync(output2)) {
+  if (fs.existsSync(output)) {
     await new Promise((resolve, reject) => {
-      fs.createReadStream(output2).pipe(stripBomStream()).pipe((0, import_csv_parser.default)()).on("data", (data) => {
+      fs.createReadStream(output).pipe(stripBomStream()).pipe((0, import_csv_parser.default)()).on("data", (data) => {
         if (data["context"] && data["source"]) {
           previousValues.set(data["context"] + data["source"], data);
         }
@@ -1869,38 +1879,38 @@ async function convertMonolingual(input2, output2) {
   const outputValues = new Array();
   const discrepancies = new Array();
   const parserOptions = {
-    headers: header ? void 0 : false,
-    separator
+    headers: HEADER ? void 0 : false,
+    separator: SEPARATOR
   };
   await new Promise((resolve, reject) => {
-    fs.createReadStream(input2).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
+    fs.createReadStream(input).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
       lineNumber++;
       const column = Object.values(data);
-      const context2 = escapeLikeExcel(column[columns.indexOf("context")] ?? "");
-      const source = escapeLikeExcel(column[columns.indexOf("source")]);
-      const target = escapeLikeExcel(column[columns.indexOf("target")]);
+      const context2 = escapeLikeExcel(column[COLUMNS.indexOf("context")] ?? "");
+      const source = escapeLikeExcel(column[COLUMNS.indexOf("source")]);
+      const target = escapeLikeExcel(column[COLUMNS.indexOf("target")]);
       const index = context2 + source;
       const row = {
-        location: `${input2}:${lineNumber}`,
+        location: `${input}:${lineNumber}`,
         source,
         target,
-        ID: escapeLikeExcel(column[columns.indexOf("ID")] ?? ""),
-        context: column[columns.indexOf("context")] ?? "",
-        translator_comments: escapeLikeExcel(column[columns.indexOf("translator_comments")] ?? ""),
-        developer_comments: escapeLikeExcel(column[columns.indexOf("developer_comments")] ?? "")
+        ID: escapeLikeExcel(column[COLUMNS.indexOf("ID")] ?? ""),
+        context: column[COLUMNS.indexOf("context")] ?? "",
+        translator_comments: escapeLikeExcel(column[COLUMNS.indexOf("translator_comments")] ?? ""),
+        developer_comments: escapeLikeExcel(column[COLUMNS.indexOf("developer_comments")] ?? "")
       };
       if (previousValues.has(index)) {
         const previousRow = previousValues.get(index);
         previousValues.delete(index);
         row["fuzzy"] = previousRow["fuzzy"];
         if (previousRow["target"] != target) {
-          if (overwrite == false) {
+          if (OVERWRITE == false) {
             row["target"] = previousRow["target"];
             if (target != "") row["fuzzy"] = "True";
           }
           if (target != "") discrepancies.push(`  * ${context2}, ${source}: ${target} <> ${previousRow["target"]}`.replace("\r\n", "\\n").replace("\r", "\\n"));
         }
-        if (obsolete && String(previousRow["developer_comments"]).includes(DELETED_MARKER)) {
+        if (OBSOLETE && String(previousRow["developer_comments"]).includes(DELETED_MARKER)) {
           newCount++;
         }
       } else {
@@ -1913,10 +1923,10 @@ async function convertMonolingual(input2, output2) {
     });
   });
   for (const value of previousValues.values()) {
-    if (obsolete) {
+    if (OBSOLETE) {
       if (!String(value["developer_comments"]).includes(DELETED_MARKER)) {
         deletedCount++;
-        if (obsolete) {
+        if (OBSOLETE) {
           value["fuzzy"] = "True";
           value["location"] = DELETED_MARKER + DELETED_PREFIX + value["location"];
           value["developer_comments"] = DELETED_MARKER + " " + value["developer_comments"];
@@ -1929,7 +1939,7 @@ async function convertMonolingual(input2, output2) {
   }
   const csvWriterOptions = {
     crlf: true,
-    delimiter: separator,
+    delimiter: SEPARATOR,
     fields: WEBLATE_COLUMNS.join(","),
     header: true,
     quoteMode: 1
@@ -1937,12 +1947,12 @@ async function convertMonolingual(input2, output2) {
   };
   await (0, import_csvwriter.default)(outputValues, csvWriterOptions, (error, csv) => {
     if (error) throw error;
-    const dataToWrite = utf_bom ? "\uFEFF" + csv : csv;
-    fs.writeFileSync(output2, dataToWrite, encoding);
+    const dataToWrite = UTF_BOM ? "\uFEFF" + csv : csv;
+    fs.writeFileSync(output, dataToWrite, ENCODING);
   });
   const stats = [];
-  stats.push(`- in: ${input2}`);
-  stats.push(`- out: ${output2}`);
+  stats.push(`- in: ${input}`);
+  stats.push(`- out: ${output}`);
   stats.push(`- new lines: ${newCount}`);
   stats.push(`- deleted lines: ${deletedCount}`);
   if (discrepancies.length > 0) {
@@ -1953,30 +1963,30 @@ async function convertMonolingual(input2, output2) {
   }
   return stats.join("\n");
 }
-async function inverseConvertMonolingual(input2, output2) {
-  console.info(`Converting from ${input2} to ${output2} ...`);
+async function inverseConvertMonolingual(input, output) {
+  console.info(`Converting from ${input} to ${output} ...`);
   const outParserOptions = {
-    headers: header ? void 0 : false,
-    separator
+    headers: HEADER ? void 0 : false,
+    separator: SEPARATOR
   };
   let contextColumn = "";
   let sourceColumn = "";
   let targetColumn = "";
-  let header2 = [];
-  if (!header) {
-    for (let i = 0; i < columns.length; i++) header2.push(String(i));
-    contextColumn = header2[columns.indexOf("context")];
-    sourceColumn = header2[columns.indexOf("source")];
-    targetColumn = header2[columns.indexOf("target")];
+  let header = [];
+  if (!HEADER) {
+    for (let i = 0; i < COLUMNS.length; i++) header.push(String(i));
+    contextColumn = header[COLUMNS.indexOf("context")];
+    sourceColumn = header[COLUMNS.indexOf("source")];
+    targetColumn = header[COLUMNS.indexOf("target")];
   }
   const preValues = /* @__PURE__ */ new Map();
-  if (fs.existsSync(output2)) {
+  if (fs.existsSync(output)) {
     await new Promise((resolve, reject) => {
-      fs.createReadStream(output2).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(outParserOptions)).on("headers", (head) => {
-        header2 = head;
-        contextColumn = header2[columns.indexOf("context")];
-        sourceColumn = header2[columns.indexOf("source")];
-        targetColumn = header2[columns.indexOf("target")];
+      fs.createReadStream(output).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(outParserOptions)).on("headers", (head) => {
+        header = head;
+        contextColumn = header[COLUMNS.indexOf("context")];
+        sourceColumn = header[COLUMNS.indexOf("source")];
+        targetColumn = header[COLUMNS.indexOf("target")];
       }).on("data", (data) => {
         const index = (data[contextColumn] ?? "") + data[sourceColumn];
         preValues[index] = data;
@@ -1987,17 +1997,17 @@ async function inverseConvertMonolingual(input2, output2) {
   }
   const columnMap = {};
   WEBLATE_COLUMNS.forEach((key) => {
-    if (columns.includes(key)) {
-      columnMap[key] = header2[columns.indexOf(key)];
+    if (COLUMNS.includes(key)) {
+      columnMap[key] = header[COLUMNS.indexOf(key)];
     }
   });
   const parserOptions = {
-    mapHeaders: ({ header: header3, index }) => columnMap[header3],
-    separator
+    mapHeaders: ({ header: header2, index }) => columnMap[header2],
+    separator: SEPARATOR
   };
   let updates = 0;
   await new Promise((resolve, reject) => {
-    fs.createReadStream(input2).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
+    fs.createReadStream(input).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
       const index = (data[contextColumn] ?? "") + data[sourceColumn];
       if (preValues[index] && preValues[index][targetColumn] != void 0) {
         if (preValues[index][targetColumn] != data[targetColumn]) {
@@ -2011,10 +2021,10 @@ async function inverseConvertMonolingual(input2, output2) {
   });
   const writerOptions = {
     crlf: CRLF,
-    delimiter: separator,
-    quoteMode: isQuote ? 1 : 0,
-    header,
-    fields: header2.join(",")
+    delimiter: SEPARATOR,
+    quoteMode: IS_QUOTE ? 1 : 0,
+    header: HEADER,
+    fields: header.join(",")
   };
   const outputValues = [];
   for (const key in preValues) {
@@ -2022,11 +2032,11 @@ async function inverseConvertMonolingual(input2, output2) {
   }
   await (0, import_csvwriter.default)(outputValues, writerOptions, (error, csv) => {
     if (error) throw error;
-    const dataToWrite = utf_bom ? "\uFEFF" + csv : csv;
-    fs.writeFileSync(output2, dataToWrite, encoding);
+    const dataToWrite = UTF_BOM ? "\uFEFF" + csv : csv;
+    fs.writeFileSync(output, dataToWrite, ENCODING);
   });
-  return `in: ${input2}
-out: ${output2}
+  return `in: ${input}
+out: ${output}
 updated lines: ${updates}`;
 }
 function escapeLikeExcel(value) {
@@ -2041,37 +2051,36 @@ function escapeLikeExcel(value) {
 // src/main.ts
 async function run() {
   try {
-    if (multi) {
-    } else if (invert) {
+    if (MULTI) {
+    } else if (INVERT) {
       iterateFilesMonolingual(inverseConvertMonolingual);
     } else {
       iterateFilesMonolingual(convertMonolingual);
     }
   } catch (error) {
-    console.error("Failed: " + error.message);
-    process.exit(1);
+    throw new Error("Failed: " + error.message);
   }
 }
 async function iterateFilesMonolingual(callback) {
   const stats = [];
-  const hasPlaceholder = input.includes(LANG_CODE_PLACEHOLDER);
-  const INPUT_REGEXP = RegExp(input.replace(".", "\\.").replace(LANG_CODE_PLACEHOLDER, "(?<langCode>.+)"));
-  for (const input2 of fs2.globSync(input)) {
-    let output2 = output;
-    if (output2.includes(LANG_CODE_PLACEHOLDER)) {
-      const langMatch = input2.match(INPUT_REGEXP);
+  const hasPlaceholder = INPUT.includes(LANG_CODE_PLACEHOLDER);
+  const INPUT_REGEXP = RegExp(INPUT.replace(".", "\\.").replace(LANG_CODE_PLACEHOLDER, "(?<langCode>.+)"));
+  for (const input of fs2.globSync(INPUT)) {
+    let output = OUTPUT;
+    if (output.includes(LANG_CODE_PLACEHOLDER)) {
+      const langMatch = input.match(INPUT_REGEXP);
       if (langMatch?.groups == void 0) {
-        console.warn(`language code not found, skipped ${input2}`);
+        console.warn(`language code not found, skipped ${input}`);
         continue;
       }
-      output2 = output.replace(LANG_CODE_PLACEHOLDER, langMatch.groups.langCode);
+      output = OUTPUT.replace(LANG_CODE_PLACEHOLDER, langMatch.groups.langCode);
     }
-    const outputDir = path.dirname(output2);
+    const outputDir = path.dirname(output);
     if (!fs2.existsSync(outputDir)) fs2.mkdirSync(outputDir);
-    const result = await callback(input2, output2);
+    const result = await callback(input, output);
     stats.push(result);
   }
-  fs2.writeFileSync(process.env.STATS_FILE, stats.join("\n----\n"), "utf8");
+  fs2.writeFileSync(STATS_FILE, stats.join("\n----\n"), "utf8");
   console.info("Done.");
 }
 run();
