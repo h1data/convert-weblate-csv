@@ -52,7 +52,7 @@ function initOptions() {
 function getInput(key: string, defaultValue: string|undefined = undefined) : string {
     const envKey = 'INPUT_' + key
     const value = process.env[envKey];
-    if (defaultValue !== undefined && value === undefined) {
+    if (defaultValue === undefined && value === undefined) {
         throw new Error(`environment ${envKey} is not defined!`);
     }
     return value ?? defaultValue as string;
