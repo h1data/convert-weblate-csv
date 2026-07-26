@@ -1713,7 +1713,7 @@ function initOptions() {
 function getInput(key, defaultValue = void 0) {
   const envKey = "INPUT_" + key;
   const value = process.env[envKey];
-  if (defaultValue !== void 0 && value === void 0) {
+  if (defaultValue === void 0 && value === void 0) {
     throw new Error(`environment ${envKey} is not defined!`);
   }
   return value ?? defaultValue;
