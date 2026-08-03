@@ -1886,18 +1886,18 @@ async function convertMonolingual(input, output) {
     fs.createReadStream(input).pipe(stripBomStream()).pipe((0, import_csv_parser.default)(parserOptions)).on("data", (data) => {
       lineNumber++;
       const column = Object.values(data);
-      const context2 = escapeLikeExcel(column[COLUMNS.indexOf("context")] ?? "");
-      const source = escapeLikeExcel(column[COLUMNS.indexOf("source")]);
-      const target = escapeLikeExcel(column[COLUMNS.indexOf("target")]);
+      const context2 = column[COLUMNS.indexOf("context")] ?? "";
+      const source = column[COLUMNS.indexOf("source")];
+      const target = column[COLUMNS.indexOf("target")];
       const index = context2 + source;
       const row = {
         location: `${input}:${lineNumber}`,
         source,
         target,
-        ID: escapeLikeExcel(column[COLUMNS.indexOf("ID")] ?? ""),
+        ID: column[COLUMNS.indexOf("ID")] ?? "",
         context: column[COLUMNS.indexOf("context")] ?? "",
-        translator_comments: escapeLikeExcel(column[COLUMNS.indexOf("translator_comments")] ?? ""),
-        developer_comments: escapeLikeExcel(column[COLUMNS.indexOf("developer_comments")] ?? "")
+        translator_comments: column[COLUMNS.indexOf("translator_comments")] ?? "",
+        developer_comments: column[COLUMNS.indexOf("developer_comments")] ?? ""
       };
       if (previousValues.has(index)) {
         const previousRow = previousValues.get(index);
@@ -2038,14 +2038,6 @@ async function inverseConvertMonolingual(input, output) {
   return `in: ${input}
 out: ${output}
 updated lines: ${updates}`;
-}
-function escapeLikeExcel(value) {
-  const text = String(value ?? "");
-  if (text === "") return "";
-  if (/^[=+\-@]/.test(text)) {
-    return `'${text}`;
-  }
-  return text;
 }
 
 // src/main.ts
