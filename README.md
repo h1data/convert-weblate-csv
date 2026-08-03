@@ -1,52 +1,88 @@
-# Gitlab component template
+# Convert Weblate CSV GitHub Action
 
-<!--
-Update this readme with your component details. Replace content in `< >` with your project information.
-For more information:
+This is a script to convert between versatile CSVs and ones for Weblate.
 
-- How to create a CI/CD component: https://docs.gitlab.com/ee/ci/components/#write-a-component
-- How to write a clear README.md file: https://docs.gitlab.com/ee/ci/components/#write-a-clear-readmemd
-- CI/CD Component security best practices: https://docs.gitlab.com/ee/ci/components/#cicd-component-security-best-practices
--->
+## Motivation
 
-<!-- Uncomment and update the following link to display a release badge: https://docs.gitlab.com/ee/user/project/badges.html#latest-release-badges -->
-<!-- [![Latest Release](https://gitlab.com/<your project path>/-/badges/release.svg)](https://gitlab.com/<your project path>/-/releases) -->
+Weblate is an open source CAT and can handle CSV files.
 
-## Components
+However, Weblate can only CSV files with the specific format.[^1]<br>
+Besides, when an item of original file was deleted, the entry of Weblate would also be deleted, even if it has additional information such as comments of discussion or screenshots. The discussion in the official concluded to delete entries automatically.
 
-### `<Component-name>`
+This GitHub Action solves automated CSV conversion jobs and provide much more reliable workflow with Weblate.
 
-Use this component to `<component-description>`.
+## Goals
 
-To add this component to your CI/CD pipeline, add the following include entry to your
-project's CI/CD configuration:
+- To automate CSV conversion with GitHub Actions
+- To preserve deleted items as obsoleted in converted CSV, and the obsoleted items do not affect original CSV
+- To adapt CSVs of any format in both monolingual and multilingual CSV, and quoting dialects.
 
-```yaml
-include:
-  - component: https://gitlab.com/<your project path>/<name of your template>@<tag>
+## Workflow Example
+
+``` mermaid
+---
+config:
+  gitGraph:
+    mainBranchName: "upstream"
+---
+gitGraph
+  commit id: "Developer push"
+  branch "main"
+  commit id: "pull original CSV"
+  branch "localization"
+  branch "* convert-csv"
+  commit id: "converted csv for Weblate"
+  checkout "localization"
+  merge "* convert-csv"
+  commit id: "merged PR"
+  branch weblate
+  commit id: "updated translations"
+  checkout "localization"
+  merge weblate
+  commit id: "merged PR (or push directly)"
+  checkout main
+  branch "* create-pr"
+  merge localization type: HIGHLIGHT
+  commit id: "converted to original CSV"
+  checkout upstream
+  merge "* create-pr"
 ```
+`*` created by GitHub Actions<br>
+This GitHub Action works for "converted csv for Weblate" and "converted to original CSV" from Weblate-style-CSV.
 
-Where `<tag>` is the release tag you want to use ([releases list](https://gitlab.com/<your-project-path>/-/releases)).
+## Usage
 
-## Inputs
+for details, see sample
 
-The template contains some optional [inputs](https://docs.gitlab.com/ee/ci/yaml/inputs.html):
+### inputs
+- `mode`: Conversion mode - true: original to Weblate, false: Weblate to original (required)
+- `multi`: Whether input CSV contains multiple languages to translate (required, true/false)
+- `input`: Input file pattern (required)
+- `output`: Output file patter (required, ** with language code)
+- `columns`: Column mapping in Python dict format (required)
+- `header`: Header of the original CSV, false for no header ()
+- `quoting`: CSV quotation style (default = `QUOTE_MINIMAL`, see https://docs.python.org/3.14/library/csv.html#csv.QUOTE_ALL)
+- `obsolete`
 
-<!-- Add or update rows if you change the inputs in the template -->
+### outputs
+- `stats`: represents converted CSV's information as follows
+  * when converting from original CSV to CSV for Weblate
+    ``` md
+    in: samples/multi/original/localization.csv
+    out: samples/multi/weblate/localization_ja.csv
+    new lines: 14
+    deleted lines: 3
+    ----
+    in: samples/multi/original/localization.csv
+    out: samples/multi/weblate/localization_zh.csv
+    new lines: 14
+    deleted lines: 3
+    ```
+  * when converting from CSV for Weblate to original CSV (monolingual)
+    ``` md
+    in: samples/multi/weblate/localization_ja.csv
+    out: samples/multi/original/localization_ja.csv
+    updated lines: 1
+    ```
 
-| Input      | Default value    | Description |
-|------------|------------------|-------------|
-| `job_name` | `job-template`   | The job name. |
-| `image`    | `busybox:latest` | The container image to use to run the job. |
-| `stage`    | `test`           | The stage name for the job. |
-
-## Documentation
-
-This project includes a MVC structure to help you get started with [Gitlab CI/CD components](https://docs.gitlab.com/ee/ci/components/).
-The template provides the basic file structure to create your own single component.
-This project should be public, or one of the jobs in the project's pipeline won't work.
-
-## Licence
-
-The licence can be changed. By default this project has the [MIT Licence](./LICENCE).
-<!-- You should update the year and name in the license file. -->
+^1 https://docs.weblate.org/en/latest/formats/csv.html
