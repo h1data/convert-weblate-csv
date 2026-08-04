@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "build:gitlab": "esbuild src/main.ts --bundle --platform=node --target=node24 --outfile=dist/gitlab/index.js"
+    "build:gitlab": "esbuild src/main.ts --bundle --platform=node --target=node24 --outfile=dist/index.js"
   },
   "dependencies": {
     "csv-parser": "^3.2.0",

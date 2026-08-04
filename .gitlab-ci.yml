@@ -58,7 +58,7 @@ test-single-original-to-weblate:
   before_script:
     - apk add --no-cache diffutils
   script:
-    - node dist/gitlab/index.js
+    - node dist/index.js
     - echo "Comparing expected vs produced CSVs"
     - if [ ! -f test/single/weblate/localization_ja.csv ]; then echo "Produced CSV not found" && exit 2; fi
     - diff -u test/single/weblate/localization_ja_expected.csv test/single/weblate/localization_ja.csv || (echo "CSV conversion mismatch" && exit 1)
@@ -93,7 +93,7 @@ test-single-weblate-to-original:
   before_script:
     - apk add --no-cache diffutils
   script:
-    - node dist/gitlab/index.js
+    - node dist/index.js
     - if [ ! -f test/single/original/localization_ja.csv ]; then echo "Produced CSV not found" && exit 2; fi
     - diff -u test/single/original/localization_ja_expected.csv test/single/original/localization_ja.csv || (echo "CSV conversion mismatch" && exit 1)
     - echo "Comparing expected vs produced stats"
