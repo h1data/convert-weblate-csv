@@ -135,7 +135,7 @@ test-cli:
         --invert
         --original-csv test/single/original/localization_ja.csv \
         --weblate-csv test/single/weblate/localization_ja.csv \
-        --stats-file test/single/weblate/stats.txt \
+        --stats-file test/single/original/stats.txt \
         --columns context,source,target,developer_comments \
         --utf-bom --no-header --obsolete
     - if [ ! -f test/single/original/localization_ja.csv ]; then echo "Produced CSV not found" && exit 2; fi
