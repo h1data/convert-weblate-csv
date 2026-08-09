@@ -13,6 +13,7 @@ export interface Options {
     UTF_BOM: boolean,
     CRLF: boolean,
     SEPARATOR: string,
+    ESCAPE: string,
     OBSOLETE: boolean,
     OVERWRITE: boolean,
     IS_QUOTE: boolean
@@ -32,6 +33,7 @@ export function getOptions(adapter: Adapter) : Options {
         UTF_BOM: adapter.getInput('UTF_BOM', 'false') == 'true',
         CRLF: adapter.getInput('LINEFEED', 'CRLF') == 'CRLF',
         SEPARATOR: adapter.getInput('SEPARATOR', ',') as string,
+        ESCAPE: adapter.getInput('ESCAPE', '\"'),
         OBSOLETE: adapter.getInput('OBSOLETE', 'true') == 'true',
         OVERWRITE: adapter.getInput('OVERWRITE', 'false') == 'true',
         IS_QUOTE: adapter.getInput('QUOTING', 'false') == 'true'

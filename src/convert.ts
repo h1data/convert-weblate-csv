@@ -37,7 +37,8 @@ export async function convertMonolingual(adapter: Adapter, options: Options.Opti
 
     const parserOptions : csvParser.Options = {
         headers: options.HEADER ? undefined : false,
-        separator: options.SEPARATOR
+        separator: options.SEPARATOR,
+        escape: options.ESCAPE
     };
 
     await new Promise((resolve, reject) => {
@@ -211,6 +212,7 @@ export async function inverseConvertMonolingual(adapter: Adapter, options: Optio
     const writerOptions = {
         crlf: options.CRLF,
         delimiter: options.SEPARATOR,
+        escape: options.ESCAPE,
         quoteMode: options.IS_QUOTE ? 1 : 0,
         header: options.HEADER,
         fields: header.join(',')
