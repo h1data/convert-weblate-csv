@@ -83,7 +83,7 @@ test-single-weblate-to-original:
     INPUT_MULTI: false
     INPUT_ORIGINAL_CSV: test/single/original/localization_ja.csv
     INPUT_WEBLATE_CSV: test/single/weblate/localization_ja.csv
-    INPUT_OUTPUT_CSV: test/single/weblate/localization_ja.csv
+    INPUT_OUTPUT_CSV: test/single/original/localization_ja.csv
     INPUT_STATS_FILE: test/single/original/stats.txt
     INPUT_COLUMNS: context,source,target,developer_comments
     INPUT_HEADER: false
