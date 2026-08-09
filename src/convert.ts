@@ -136,7 +136,7 @@ export async function convertMonolingual(adapter: Adapter, options: Options.Opti
     return stats.join('\n')
 }
 
-export async function inverseConvertMonolingual(adapter: Adapter, options: Options.Options, original: string, weblate: string, output: string) : Promise<string> {
+export async function inverseConvertMonolingual(adapter: Adapter, options: Options.Options, weblate: string, original: string, output: string) : Promise<string> {
 
     adapter.info(`Converting from ${weblate} to ${output} ...`);
 
