@@ -224,7 +224,7 @@ export async function inverseConvertMonolingual(adapter: Adapter, options: Optio
     await csvWriter(outputValues, writerOptions, (error, csv) => {
         if (error) throw error;
         const dataToWrite = options.UTF_BOM ? '\uFEFF' + csv : csv;
-        fs.writeFileSync(output, options.ENCODING);
+        fs.writeFileSync(output, dataToWrite, { encoding: options.ENCODING } as fs.WriteFileOptions);
     });
 
     return `in: ${weblate}
