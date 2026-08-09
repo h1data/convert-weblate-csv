@@ -102,3 +102,30 @@ test-single-weblate-to-original:
     - echo "Comparing expected vs produced stats"
     - if [ ! -f test/single/original/stats.txt ]; then echo "Produced stats not found" && exit 2; fi
     - diff -u test/single/original/stats_expected.txt test/single/original/stats.txt || (echo "Stats conversion mismatch" && exit 1)
+
+test-cli:
+  stage: test
+  image: node:24-alpine
+  rules:
+    - changes:
+        paths:
+          - dist/**/*
+          - src/**/*
+          - test/**/*
+          - .gitlab-ci.yml
+  before_script:
+    - apk add --no-cache diffutils
+  script:
+    - |
+      node dist/index.js \
+        --original-csv test/single/original/localization_ja.csv \
+        --weblate-csv test/single/weblate/localization_ja.csv \
+        --stats-file test/single/weblate/stats.txt
+        --columns context,source,target,developer_comments
+        --no-header --obsolete
+    - echo "Comparing expected vs produced CSVs"
+    - if [ ! -f test/single/weblate/localization_ja.csv ]; then echo "Produced CSV not found" && exit 2; fi
+    - diff -u test/single/weblate/localization_ja_expected.csv test/single/weblate/localization_ja.csv || (echo "CSV conversion mismatch" && exit 1)
+    - echo "Comparing expected vs produced stats"
+    - if [ ! -f test/single/weblate/stats.txt ]; then echo "Produced stats not found" && exit 2; fi
+    - diff -u test/single/weblate/stats_expected.txt test/single/weblate/stats.txt || (echo "Stats conversion mismatch" && exit 1)

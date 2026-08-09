@@ -32,7 +32,7 @@ export function getOptions(adapter: Adapter) : Options {
         ENCODING: adapter.getInput('ENCODING', 'utf8'),
         UTF_BOM: adapter.getInput('UTF_BOM', 'false') == 'true',
         CRLF: adapter.getInput('LINEFEED', 'CRLF') == 'CRLF',
-        SEPARATOR: adapter.getInput('SEPARATOR', ',') as string,
+        SEPARATOR: adapter.getInput('SEPARATOR', ','),
         ESCAPE: adapter.getInput('ESCAPE', '\"'),
         OBSOLETE: adapter.getInput('OBSOLETE', 'true') == 'true',
         OVERWRITE: adapter.getInput('OVERWRITE', 'false') == 'true',
