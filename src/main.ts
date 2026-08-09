@@ -28,7 +28,7 @@ async function iterateFilesMonolingual(adapter: Adapter, options: Options.Option
     for (const input of fs.globSync(inputs)) {
         const langMatch = input.match(INPUT_REGEXP);
         let outputRef: string|null = options.INVERT ? options.ORIGINAL_CSV : options.WEBLATE_CSV;
-        let output: string|null = options.OUTPUT_CSV == '' ? options.OUTPUT_CSV : outputRef;
+        let output: string|null = options.OUTPUT_CSV == '' ? outputRef : options.OUTPUT_CSV;
         if (langMatch) {
             outputRef = replacePlaceholder(langMatch, outputRef);
             output = replacePlaceholder(langMatch, output);
