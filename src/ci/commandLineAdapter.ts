@@ -5,7 +5,7 @@ import commandLineUsage from 'command-line-usage';
 export const optionDefinitions = {
     ORIGINAL_CSV: { name: 'original-csv', description: 'Input file path (required)' }, 
     WEBLATE_CSV: { name: 'weblate-csv', description: 'Input file path (required)' },
-    OUTPUT_CSV: { name: 'output', description: 'Output file path (required)' },
+    OUTPUT_CSV: { name: 'output-csv', description: 'Output file path (required)' },
     INVERT: { name: 'invert', description: '', type: Boolean },
     MULTI: { name: 'multi', description: '', type: Boolean },
     STATS_FILE: { name: 'stats-file', description: 'TBD', defaultValue: 'stats.txt' },
