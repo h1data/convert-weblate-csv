@@ -24,7 +24,7 @@ export function getOptions(adapter: Adapter) : Options {
         MULTI: adapter.getInput('MULTI') == 'true',
         ORIGINAL_CSV: adapter.getInput('ORIGINAL_CSV'),
         WEBLATE_CSV: adapter.getInput('WEBLATE_CSV'),
-        OUTPUT_CSV: adapter.getInput('OUTPUT_CSV'),
+        OUTPUT_CSV: adapter.getInput('OUTPUT_CSV', ''),
         STATS_FILE: adapter.getInput('STATS_FILE', 'stats.txt'),
         COLUMNS: adapter.getInput('COLUMNS').split(','),
         HEADER: adapter.getInput('HEADER', 'true') == 'true',
