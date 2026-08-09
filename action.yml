@@ -1,0 +1,71 @@
+name: Add CSV Index
+description: add numbers to the certain columns in a CSV file
+author: h1data
+
+inputs:
+  invert:
+    description: Whether inverse conversion from Weblate CSV to the original CSV or not (true/false)
+    required: true
+  multi: 
+    description: Whether original CSV contains multiple languages to translate (true/false)
+    required: true
+  original_csv:
+    description: Path of the original csv
+    required: true
+  weblate_csv:
+    description: Path of the original csv
+    required: true
+  output_csv:
+    description: Output file path
+    required: false
+  stats_file:
+    description: Stats of CSV conversion
+    required: false
+    default: stats.txt
+  columns:
+    description: Column list as Weblate CSV (context, source, target...) 
+    required: true
+  header:
+    description: Whether the original CSV has header (true/false)
+    required: false
+    default: "true"
+  encoding:
+    description: Specifies encoding of the original CSV
+    required: false
+    default: "utf8"
+  utf_bom:
+    description: Whether the CSV has BOM
+    required: false
+    default: "false"
+  linefeed:
+    description: Specifies linefeed (CRLF/LF)
+    required: false
+    default: "CRLF"
+  separator:
+    description: Specifies the separator of the original CSV
+    required: false
+    default: ","
+  escape:
+    description: Specifies escape character for separators
+    required: false
+    default: "\""
+  obsolete: 
+    description: Whether adding obsoleted rows for CSVs for Weblate
+    required: false
+    default: "true"
+  overwrite:
+    description: "Whether overwriting existed translations of CSVs for Weblate"
+    required: false
+    default: "false"
+  quoting:
+    description: Whether if always quoting every column in the original CSV (true/false)
+    required: false
+    default: "false"
+
+outputs:
+  stats:
+    description: Stats of CSV conversion
+
+runs:
+  using: node24
+  main: dist/github/index.js

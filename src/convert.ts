@@ -1,22 +1,23 @@
 import * as fs from 'fs';
 import csvParser from 'csv-parser';
 import csvWriter from 'csvwriter';
-import * as options from './options';
-import stripBom from 'strip-bom-stream';
+import iconv from 'iconv-lite';
+import Adapter from './ci/CIAdapter';
+import * as Options from './options';
 
 const DELETED_MARKER = '[DELETED]';
 const DELETED_PREFIX = ' former ';
 const WEBLATE_COLUMNS = [ 'location', 'source', 'target', 'ID', 'fuzzy', 'context', 'translator_comments', 'developer_comments' ];
 
-export async function convertMonolingual(input: string, output: string) : Promise<string> {
+export async function convertMonolingual(adapter: Adapter, options: Options.Options, original: string, weblate: string, output: string) : Promise<string> {
     
-    console.info(`Converting from ${input} to ${output} ...`);
+    adapter.info(`Converting from ${original} to ${output} ...`);
 
     const previousValues = new Map<string, any>();
-    if (fs.existsSync(output)) {
+    if (fs.existsSync(weblate)) {
         await new Promise((resolve, reject) => {
-            fs.createReadStream(output)
-                .pipe(stripBom())
+            fs.createReadStream(weblate)
+                .pipe(iconv.decodeStream(options.ENCODING as string))
                 .pipe(csvParser())
                 .on('data', (data) => {
                     if (data['context'] && data['source']) {
@@ -40,8 +41,8 @@ export async function convertMonolingual(input: string, output: string) : Promis
     };
 
     await new Promise((resolve, reject) => {
-        fs.createReadStream(input)
-            .pipe(stripBom())
+        fs.createReadStream(original)
+            .pipe(iconv.decodeStream(options.ENCODING as string))
             .pipe(csvParser(parserOptions))
             .on('data', (data: Object) => {
 
@@ -52,7 +53,7 @@ export async function convertMonolingual(input: string, output: string) : Promis
                 const target = column[options.COLUMNS.indexOf('target')];
                 const index = context + source;
                 const row = {
-                    location: `${input}:${lineNumber}`,
+                    location: `${original}:${lineNumber}`,
                     source: source,
                     target: target,
                     ID: column[options.COLUMNS.indexOf('ID')] ?? '',
@@ -119,11 +120,11 @@ export async function convertMonolingual(input: string, output: string) : Promis
     await csvWriter(outputValues, csvWriterOptions, (error, csv) => {
         if (error) throw error;
         const dataToWrite = options.UTF_BOM ? '\uFEFF' + csv : csv;
-        fs.writeFileSync(output, dataToWrite, options.ENCODING);
+        fs.writeFileSync(output, dataToWrite, { encoding: options.ENCODING } as fs.WriteFileOptions);
     })
 
     const stats: Array<string> = [];
-    stats.push(`- in: ${input}`);
+    stats.push(`- in: ${original}`);
     stats.push(`- out: ${output}`)
     stats.push(`- new lines: ${newCount}`);
     stats.push(`- deleted lines: ${deletedCount}`);
@@ -135,9 +136,9 @@ export async function convertMonolingual(input: string, output: string) : Promis
     return stats.join('\n')
 }
 
-export async function inverseConvertMonolingual(input: string, output: string) : Promise<string> {
+export async function inverseConvertMonolingual(adapter: Adapter, options: Options.Options, original: string, weblate: string, output: string) : Promise<string> {
 
-    console.info(`Converting from ${input} to ${output} ...`);
+    adapter.info(`Converting from ${weblate} to ${output} ...`);
 
     const outParserOptions = {
         headers: options.HEADER ? undefined : false,
@@ -156,10 +157,10 @@ export async function inverseConvertMonolingual(input: string, output: string) :
         targetColumn = header[options.COLUMNS.indexOf('target')];
     }
     const preValues = new Map<string, Object>();
-    if (fs.existsSync(output)) {
+    if (fs.existsSync(original)) {
         await new Promise((resolve, reject) => {
-            fs.createReadStream(output)
-                .pipe(stripBom())
+            fs.createReadStream(original)
+                .pipe(iconv.decodeStream(options.ENCODING as string))
                 .pipe(csvParser(outParserOptions))
                 .on('headers', (head) => {
                     header = head;
@@ -190,8 +191,8 @@ export async function inverseConvertMonolingual(input: string, output: string) :
 
     let updates = 0;
     await new Promise((resolve, reject) => {
-        fs.createReadStream(input)
-            .pipe(stripBom())
+        fs.createReadStream(weblate)
+            .pipe(iconv.decodeStream(options.ENCODING as string))
             .pipe(csvParser(parserOptions))
             .on('data', (data: Object) => {
                 const index = (data[contextColumn] ?? '') + data[sourceColumn];
@@ -223,10 +224,10 @@ export async function inverseConvertMonolingual(input: string, output: string) :
     await csvWriter(outputValues, writerOptions, (error, csv) => {
         if (error) throw error;
         const dataToWrite = options.UTF_BOM ? '\uFEFF' + csv : csv;
-        fs.writeFileSync(output, dataToWrite, options.ENCODING);
+        fs.writeFileSync(output, options.ENCODING);
     });
 
-    return `in: ${input}
+    return `in: ${weblate}
 out: ${output}
 updated lines: ${updates}`;
 

@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "build": "esbuild src/main.ts --bundle --platform=node --target=node24 --outfile=dist/index.js"
+    "build": "esbuild src/main_cli.ts --bundle --minify --platform=node --target=node24 --outfile=dist/index.js",
+    "build:github": "esbuild src/main_github.ts --bundle --minify --platform=node --target=node24 --outfile=dist/github/index.js",
+    "build:gitlab": "esbuild src/main_gitlab.ts --bundle --minify --platform=node --target=node24 --outfile=dist/gitlab/index.js"
   },
   "dependencies": {
+    "@actions/core": "^3.0.1",
+    "command-line-args": "^6.0.2",
+    "command-line-usage": "^7.0.4",
     "csv-parser": "^3.2.0",
     "csvwriter": "^1.2.0",
-    "strip-bom-stream": "^5.0.0"
+    "iconv-lite": "^0.7.3"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

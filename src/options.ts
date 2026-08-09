@@ -1,59 +1,58 @@
-import * as fs from 'fs';
+import Adapter from './ci/CIAdapter';
 
-const self = initOptions();
+export interface Options {
+    INVERT: boolean,
+    MULTI: boolean,
+    ORIGINAL_CSV: string,
+    WEBLATE_CSV: string,
+    OUTPUT_CSV: string,
+    STATS_FILE: string,
+    COLUMNS: string[],
+    HEADER: boolean,
+    ENCODING: string,
+    UTF_BOM: boolean,
+    CRLF: boolean,
+    SEPARATOR: string,
+    OBSOLETE: boolean,
+    OVERWRITE: boolean,
+    IS_QUOTE: boolean
+}
 
-export const INVERT = self.invert;
-export const MULTI = self.multi;
-export const INPUT = self.input;
-export const OUTPUT = self.output;
-export const STATS_FILE = self.stats_file;
-export const COLUMNS = self.columns;
-export const HEADER = self.header;
-export const ENCODING = self.encoding;
-export const UTF_BOM = self.utf_bom;
-export const CRLF = self.linefeed;
-export const SEPARATOR = self.separator;
-export const OBSOLETE = self.obsolete;
-export const OVERWRITE = self.overwrite;
-export const IS_QUOTE = self.isQuote;
-
-export const LANG_CODE_PLACEHOLDER : string = '*';
-
-function initOptions() {
-
+export function getOptions(adapter: Adapter) : Options {
     const ret = {
-        invert: getInput('INVERT') == 'true',
-        multi: getInput('MULTI') == 'true',
-        input: getInput('INPUT'),
-        output: getInput('OUTPUT'),
-        stats_file: getInput('STATS_FILE', 'stats.txt'),
-        columns: getInput('COLUMNS').split(','),
-        header: getInput('HEADER', 'true') == 'true',
-        encoding: getInput('ENCODING', 'utf8') as fs.WriteFileOptions,
-        utf_bom: getInput('UTF_BOM', 'false') == 'true',
-        linefeed: getInput('LINEFEED', 'CRLF') == 'CRLF',
-        separator: getInput('SEPARATOR', ',') as string,
-        obsolete: getInput('OBSOLETE', 'true') == 'true',
-        overwrite: getInput('OVERWRITE', 'false') == 'true',
-        isQuote: getInput('QUOTING', 'false') == 'true'
+        INVERT: adapter.getInput('INVERT') == 'true',
+        MULTI: adapter.getInput('MULTI') == 'true',
+        ORIGINAL_CSV: adapter.getInput('ORIGINAL_CSV'),
+        WEBLATE_CSV: adapter.getInput('WEBLATE_CSV'),
+        OUTPUT_CSV: adapter.getInput('OUTPUT_CSV'),
+        STATS_FILE: adapter.getInput('STATS_FILE', 'stats.txt'),
+        COLUMNS: adapter.getInput('COLUMNS').split(','),
+        HEADER: adapter.getInput('HEADER', 'true') == 'true',
+        ENCODING: adapter.getInput('ENCODING', 'utf8'),
+        UTF_BOM: adapter.getInput('UTF_BOM', 'false') == 'true',
+        CRLF: adapter.getInput('LINEFEED', 'CRLF') == 'CRLF',
+        SEPARATOR: adapter.getInput('SEPARATOR', ',') as string,
+        OBSOLETE: adapter.getInput('OBSOLETE', 'true') == 'true',
+        OVERWRITE: adapter.getInput('OVERWRITE', 'false') == 'true',
+        IS_QUOTE: adapter.getInput('QUOTING', 'false') == 'true'
     };
 
-    if ( ret.multi == false && (ret.input.includes('\*') !== ret.output.includes('\*')) ) {
-        // (input has placeholder) XOR (output has placeholder)
-        console.error(`Invalid use for lang code in file names: ${ret.input}, ${ret.output}`);
-        process.exit(1);
+    if ( ret.MULTI == false) {
+        if (ret.ORIGINAL_CSV.includes('\*') !== ret.WEBLATE_CSV.includes('\*')) {
+            // (original has placeholder) XOR (weblate has placeholder)
+            adapter.error(`Invalid use for lang code in file names: ${ret.ORIGINAL_CSV}, ${ret.WEBLATE_CSV}`);
+            process.exit(1);
+        }
+        if ( ret.OUTPUT_CSV && (ret.ORIGINAL_CSV.includes('\*') !== ret.OUTPUT_CSV.includes('\*'))) {
+            adapter.error(`Invalid use for lang code in file names: ${ret.ORIGINAL_CSV}, ${ret.WEBLATE_CSV}, ${ret.OUTPUT_CSV}`);
+            process.exit(1);
+        }
     }
 
     // TODO other check for INPUTS
 
+
     return ret;
 }
 
-function getInput(key: string, defaultValue: string|undefined = undefined) : string {
-    const envKey = 'INPUT_' + key
-    const value = process.env[envKey];
-    if (defaultValue === undefined && value === undefined) {
-        throw new Error(`environment ${envKey} is not defined!`);
-    }
-    return value ?? defaultValue as string;
-}
+export const LANG_CODE_PLACEHOLDER : string = '*';

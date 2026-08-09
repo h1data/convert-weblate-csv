@@ -1,53 +1,54 @@
+import Adapter from './ci/CIAdapter'
 import * as fs from 'fs';
 import * as path from 'path';
-import * as options from './options';
+import * as Options from './options';
 import * as convert from './convert';
 
-async function run(): Promise<void> {
+export async function run(adapter: Adapter): Promise<void> {
     try {
+        const options = Options.getOptions(adapter);
         if (options.MULTI) {
             // TODO
-        } else if (options.INVERT) {
-            iterateFilesMonolingual(convert.inverseConvertMonolingual);
         } else {
-            iterateFilesMonolingual(convert.convertMonolingual);
+            iterateFilesMonolingual(adapter, options, options.INVERT ? convert.inverseConvertMonolingual : convert.convertMonolingual);
         }
     } catch (error: any) {
         throw new Error('Failed: ' + error.message);
     }
 }
 
-/**
- * iterate monolingual files, adopts both invert or not
- * @param options options from workflow inputs
- * @param inputPattern input file pattern, * for language code
- * @param outputPattern output file pattern, * for language code
- * @param callback callback function 
- */
-async function iterateFilesMonolingual(callback: Function) {
+async function iterateFilesMonolingual(adapter: Adapter, options: Options.Options, callback: Function) {
 
     const stats: Array<string> = [];
-    const hasPlaceholder = options.INPUT.includes(options.LANG_CODE_PLACEHOLDER);
+    const inputs = options.INVERT ? options.WEBLATE_CSV : options.ORIGINAL_CSV;
+    const hasPlaceholder = inputs.includes(Options.LANG_CODE_PLACEHOLDER);
     // build regexp pattern ex. foo/localization_*.csv -> foo/localization_(.+)\.csv
-    const INPUT_REGEXP = RegExp(options.INPUT.replace('.', '\\.').replace(options.LANG_CODE_PLACEHOLDER, '(?<langCode>.+)'));
-        
-    for (const input of fs.globSync(options.INPUT)) {
-        let output = options.OUTPUT;
-        if (output.includes(options.LANG_CODE_PLACEHOLDER)) {
-            const langMatch = input.match(INPUT_REGEXP);
-            if (langMatch?.groups == undefined) {
-                console.warn(`language code not found, skipped ${input}`);
+    const INPUT_REGEXP = RegExp(inputs.replace('.', '\\.').replace(Options.LANG_CODE_PLACEHOLDER, '(?<langCode>.+)'));
+
+    for (const input of fs.globSync(inputs)) {
+        const langMatch = input.match(INPUT_REGEXP);
+        let outputRef: string|null = options.INVERT ? options.ORIGINAL_CSV : options.WEBLATE_CSV;
+        let output: string|null = options.OUTPUT_CSV && outputRef;
+        if (langMatch) {
+            outputRef = replacePlaceholder(langMatch, outputRef);
+            output = replacePlaceholder(langMatch, output);
+            if (outputRef == null || output == null) {
+                adapter.warn(`language code not found, skipped ${input}`);
                 continue;
             }
-            output = options.OUTPUT.replace(options.LANG_CODE_PLACEHOLDER, langMatch.groups.langCode);
         }
         const outputDir = path.dirname(output);
         if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
-        const result = await callback(input, output);
+        const result = await callback(adapter, options, input, outputRef, output);
         stats.push(result);
     }
     fs.writeFileSync(options.STATS_FILE, stats.join('\n----\n'), 'utf8');
-    console.info('Done.');
-}
+    adapter.info('Done.');
 
-run();
+    function replacePlaceholder(lang: RegExpMatchArray, path: string) : string|null {
+        if (lang.groups && path.includes(Options.LANG_CODE_PLACEHOLDER)) {
+            return path.replace(Options.LANG_CODE_PLACEHOLDER, lang.groups.langCode);
+        }
+        return path;
+    }
+}
