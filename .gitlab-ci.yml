@@ -132,7 +132,7 @@ test-cli:
     - git checkout test/*
     - |
       node dist/index.js \
-        --invert
+        --invert \
         --original-csv test/single/original/localization_ja.csv \
         --weblate-csv test/single/weblate/localization_ja.csv \
         --output-csv test/single/original/localization_ja_out.csv \
