@@ -42,7 +42,9 @@ async function iterateFilesMonolingual(adapter: Adapter, options: Options.Option
         const result = await callback(adapter, options, input, outputRef, output);
         stats.push(result);
     }
-    fs.writeFileSync(options.STATS_FILE, stats.join('\n----\n'), 'utf8');
+    const statsString : string = stats.join('\n----\n')
+    if (adapter.setOutput) adapter.setOutput('stats', statsString);
+    fs.writeFileSync(options.STATS_FILE, statsString, 'utf8');
     adapter.info('Done.');
 
     function replacePlaceholder(lang: RegExpMatchArray, path: string) : string|null {

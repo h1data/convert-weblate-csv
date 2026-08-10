@@ -13,10 +13,10 @@ inputs:
     description: Path of the original csv
     required: true
   weblate_csv:
-    description: Path of the original csv
+    description: Path of the Weblate csv
     required: true
   output_csv:
-    description: Output file path
+    description: Output file path (optional)
     required: false
   stats_file:
     description: Stats of CSV conversion

@@ -1,0 +1,106 @@
+name: Test weblate-csv-conversion action
+
+on:
+  push: 
+    branches: 
+      - main
+    paths:
+      - '.github/workflows/ci.yml'
+      - 'action.yml'
+      - 'src/**'
+      - 'dist/**'
+      - 'test/**'
+  workflow_call:
+
+jobs:
+
+  test-single-1:
+    name: Test (single language to translate)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Conversion
+        id: conversion
+        uses: ./
+        with:
+          invert: false
+          multi: false
+          original_csv: test/single/original/localization_ja.csv
+          weblate_csv: test/single/weblate/localization_ja.csv
+          stats_file: test/single/weblate/stats.txt
+          columns: context,source,target,developer_comments
+          header: false
+          encoding: utf8
+          linefeed: CRLF
+          separator: ","
+          obsolete: true
+          quoting: false
+
+      - name: Print outputs
+        run: |
+          echo "converted: test/single/weblate/localization_ja.csv"
+          cat test/single/weblate/localization_ja.csv
+          echo "Stats: ${{ steps.conversion.outputs.stats }}"
+
+      - name: Check output format
+        run: |
+          echo "Comparing expected vs produced CSVs"
+          if [ ! -f test/single/weblate/localization_ja.csv ]; then echo "Produced CSV not found" && exit 2; fi
+          diff -u test/single/weblate/localization_ja_expected.csv test/single/weblate/localization_ja.csv || (echo "CSV conversion mismatch" && exit 1)
+
+          echo "Comparing expected vs produced stats"
+          if [ ! -f test/single/weblate/stats.txt ]; then echo "Produced stats file not found" && exit 2; fi
+          diff -u test/single/weblate/stats_expected.txt test/single/weblate/stats.txt || (echo "Stats file mismatch" && exit 1)
+
+          echo "${{ steps.conversion.outputs.stats }}" > test/single/original/stats.txt
+          diff -u test/single/weblate/stats_expected.txt test/single/weblate/stats.txt || (echo "Stats output mismatch" && exit 1)
+
+  test-single-2:
+    name: Test (single language to translate, inverse)
+    needs: [build]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Conversion
+        id: conversion
+        uses: ./
+        with:
+          invert: true
+          multi: false
+          original_csv: test/single/original/localization_ja.csv
+          weblate_csv: test/single/weblate/localization_ja.csv
+          output_csv: test/single/original/localization_ja_out.csv
+          columns: context,source,target,developer_comments
+          header: false
+          encoding: utf8
+          utf_bom: true
+          linefeed: CRLF
+          separator: ","
+          obsolete: true
+          quoting: false
+
+      - name: Print outputs
+        run: |
+          echo "converted: test/single/original/localization_ja_out.csv"
+          cat test/single/original/localization_ja_out.csv
+          echo "Stats: ${{ steps.conversion.outputs.stats }}"
+
+      - name: Check output format
+        run: |
+          echo "Comparing expected vs produced CSVs"
+          if [ ! -f test/single/original/localization_ja_out.csv ]; then echo "Produced CSV not found" && exit 2; fi
+          diff -u test/single/original/localization_ja_expected.csv test/single/original/localization_ja_out.csv || (echo "CSV conversion mismatch" && exit 1)
+
+          echo "Comparing expected vs produced stats"
+          if [ ! -f test/single/original/stats.txt ]; then echo "Produced stats file not found" && exit 2; fi
+          diff -u test/single/original/stats_expected.txt test/single/original/stats.txt || (echo "Stats file mismatch" && exit 1)
+
+          echo "${{ steps.conversion.outputs.stats }}" > test/single/original/stats.txt
+          diff -u test/single/original/stats_expected.txt test/single/original/stats.txt || (echo "Stats output mismatch" && exit 1)
+# TODO test-multilingual:
