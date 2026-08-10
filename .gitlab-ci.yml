@@ -13,8 +13,8 @@ build:
           - .gitlab-ci.yml
   before_script:
     - apk add --no-cache git
-    - git config --global user.name "$GITLAB_USER_NAME"
-    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - git config --global user.name "gitlab-ci[bot]"
+    - git config --global user.email "gitlab-ci[bot]@users.noreply.gitlab.com"
     - git checkout "$CI_COMMIT_REF_NAME"
   script:
     - npm ci
