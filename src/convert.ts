@@ -9,7 +9,7 @@ const DELETED_MARKER = '[DELETED]';
 const DELETED_PREFIX = ' former ';
 const WEBLATE_COLUMNS = [ 'location', 'source', 'target', 'ID', 'fuzzy', 'context', 'translator_comments', 'developer_comments' ];
 
-export async function convertMonolingual(adapter: Adapter, options: Options.Options, original: string, weblate: string, output: string) : Promise<string> {
+export async function convert(adapter: Adapter, options: Options.Options, original: string, weblate: string, output: string, targetColumn='target') : Promise<string> {
     
     adapter.info(`Converting from ${original} to ${output} ...`);
 
@@ -51,7 +51,7 @@ export async function convertMonolingual(adapter: Adapter, options: Options.Opti
                 const column = Object.values(data);
                 const context = column[options.COLUMNS.indexOf('context')] ?? '';
                 const source = column[options.COLUMNS.indexOf('source')];
-                const target = column[options.COLUMNS.indexOf('target')];
+                const target = column[options.COLUMNS.indexOf(targetColumn)];
                 const index = context + source;
                 const row = {
                     location: `${original}:${lineNumber}`,
@@ -137,7 +137,7 @@ export async function convertMonolingual(adapter: Adapter, options: Options.Opti
     return stats.join('\n')
 }
 
-export async function inverseConvertMonolingual(adapter: Adapter, options: Options.Options, weblate: string, original: string, output: string) : Promise<string> {
+export async function convertInverse(adapter: Adapter, options: Options.Options, original: string, weblate: string, output: string, targetColumn='target') : Promise<string> {
 
     adapter.info(`Converting from ${weblate} to ${output} ...`);
 
@@ -148,14 +148,14 @@ export async function inverseConvertMonolingual(adapter: Adapter, options: Optio
 
     let contextColumn = '';
     let sourceColumn = '';
-    let targetColumn = '';
+    let _targetColumn = '';
 
     let header: Array<string> = [];
     if (!options.HEADER) {
         for (let i=0; i<options.COLUMNS.length; i++) header.push(String(i));
         contextColumn = header[options.COLUMNS.indexOf('context')];
         sourceColumn = header[options.COLUMNS.indexOf('source')];
-        targetColumn = header[options.COLUMNS.indexOf('target')];
+        _targetColumn = header[options.COLUMNS.indexOf(targetColumn)];
     }
     const preValues = new Map<string, Object>();
     if (fs.existsSync(original)) {
@@ -167,7 +167,7 @@ export async function inverseConvertMonolingual(adapter: Adapter, options: Optio
                     header = head;
                     contextColumn = header[options.COLUMNS.indexOf('context')];
                     sourceColumn = header[options.COLUMNS.indexOf('source')];
-                    targetColumn = header[options.COLUMNS.indexOf('target')];
+                    _targetColumn = header[options.COLUMNS.indexOf(_targetColumn)];
                 })
                 .on('data', (data) => {
                     const index = (data[contextColumn] ?? '') + data[sourceColumn];
@@ -207,7 +207,7 @@ export async function inverseConvertMonolingual(adapter: Adapter, options: Optio
             })
             .on('end', resolve)
             .on('error', (error) => { reject(error) });
-        });
+    });
 
     const writerOptions = {
         crlf: options.CRLF,
