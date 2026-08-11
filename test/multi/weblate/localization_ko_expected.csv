@@ -1,5 +1,5 @@
 "location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
-"test/multi/original/localization.csv:1","Hello, $NAME","안녕하세요 $NAME","","True","GREETING","",""
+"test/multi/original/localization.csv:1","Hello, $NAME","안녕하세요 $NAME","","True","GREETING","","comment test"
 "test/multi/original/localization.csv:2","farewell","안녕히 계세요","","True","GREETING","",""
 "test/multi/original/localization.csv:3","Start","시작","","True","MENU","",""
 "test/multi/original/localization.csv:4","Quit","종료","","True","MENU","",""
