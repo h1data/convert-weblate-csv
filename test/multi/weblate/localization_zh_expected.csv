@@ -1,5 +1,5 @@
 "location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
-"test/multi/original/localization.csv:1","Hello, $NAME","你好、$NAME","","True","GREETING","",""
+"test/multi/original/localization.csv:1","Hello, $NAME","你好、$NAME","","True","GREETING","","comment test"
 "test/multi/original/localization.csv:2","farewell","再见","","True","GREETING","",""
 "test/multi/original/localization.csv:3","Start","开始","","True","MENU","",""
 "test/multi/original/localization.csv:4","Quit","退出","","True","MENU","",""
