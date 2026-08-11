@@ -129,8 +129,8 @@ test-multi-original-to-weblate:
     - if [ ! -f test/multi/weblate/localization_ko.csv ]; then echo "Produced CSV (ko) not found" && exit 2; fi
     - if [ ! -f test/multi/weblate/localization_zh.csv ]; then echo "Produced CSV (zh) not found" && exit 2; fi
     - diff -u test/multi/weblate/localization_ja_expected.csv test/multi/weblate/localization_ja.csv || (echo "CSV (ja) conversion mismatch" && exit 1)
-    - diff -u test/multi/weblate/localization_ko_expected.csv test/multi/weblate/localization_ja.csv || (echo "CSV (ko) conversion mismatch" && exit 1)
-    - diff -u test/multi/weblate/localization_zh_expected.csv test/multi/weblate/localization_ja.csv || (echo "CSV (zh) conversion mismatch" && exit 1)
+    - diff -u test/multi/weblate/localization_ko_expected.csv test/multi/weblate/localization_ko.csv || (echo "CSV (ko) conversion mismatch" && exit 1)
+    - diff -u test/multi/weblate/localization_zh_expected.csv test/multi/weblate/localization_zh.csv || (echo "CSV (zh) conversion mismatch" && exit 1)
     - if [ ! -f test/multi/weblate/stats.txt ]; then echo "Produced stats not found" && exit 2; fi
     - diff -u test/multi/weblate/stats_expected.txt test/multi/weblate/stats.txt || (echo "Stats conversion mismatch" && exit 1)
 

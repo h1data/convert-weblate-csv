@@ -1,11 +1,11 @@
 in: test/multi/weblate/localization_zh.csv
-out: test/multi/original/localization.csv
+out: test/multi/original/localization_out.csv
 updated lines: 0
 ----
 in: test/multi/weblate/localization_ko.csv
-out: test/multi/original/localization.csv
+out: test/multi/original/localization_out.csv
 updated lines: 0
 ----
 in: test/multi/weblate/localization_ja.csv
-out: test/multi/original/localization.csv
+out: test/multi/original/localization_out.csv
 updated lines: 2
