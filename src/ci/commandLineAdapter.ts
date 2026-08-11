@@ -22,7 +22,13 @@ export const optionDefinitions = {
     HELP: {name: 'help', description: 'Print this usage', type: Boolean}
 };
 
-const options = commandLineArgs(Object.values(optionDefinitions));
+let options;
+try {
+    options = commandLineArgs(Object.values(optionDefinitions));
+} catch(e) {
+    showUsage();
+    process.exit(1);
+}
 
 if (options.help) {
     showUsage();
@@ -59,7 +65,7 @@ function showUsage() {
             [
                 {
                     header: 'Convert Weblate CSV',
-                    content: 'Convert between any-format CSV and Weblate style ()'
+                    content: 'Convert between any-format CSV and Weblate style (translation-toolkit)'
                 },
                 {
                     header: 'Options',

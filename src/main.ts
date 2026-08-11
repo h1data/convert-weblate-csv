@@ -73,10 +73,10 @@ async function __iterateFilesMulti(adapter: Adapter, options: Options.Options) {
     const convertFunc: Function = options.INVERT ? Convert.convertInverse : Convert.convert;
 
     for (const column of options.COLUMNS) {
-        if (!column.includes('target_[a-zA-Z]+')) continue;
+        if (!column.includes('target_')) continue;
         const language = column.replace('target_', '');
         const weblate = options.WEBLATE_CSV.replace('\*', language);
-        const output = options.OUTPUT_CSV == '' ? weblate : options.OUTPUT_CSV.replace('\*', language);
+        const output = options.OUTPUT_CSV == '' ? (options.INVERT ? options.ORIGINAL_CSV : weblate) : options.OUTPUT_CSV.replace('\*', language);
         const result = await convertFunc(adapter, options, options.ORIGINAL_CSV, weblate, output, column);
         stats.push(result);
     }

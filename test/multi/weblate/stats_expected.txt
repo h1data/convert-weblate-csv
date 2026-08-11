@@ -1,0 +1,16 @@
+- in: test/multi/original/localization.csv
+- out: test/multi/weblate/localization_zh.csv
+- new lines: 1
+- deleted lines: 0
+----
+- in: test/multi/original/localization.csv
+- out: test/multi/weblate/localization_ko.csv
+- new lines: 1
+- deleted lines: 0
+----
+- in: test/multi/original/localization.csv
+- out: test/multi/weblate/localization_ja.csv
+- new lines: 1
+- deleted lines: 0
+- discrepancies: 
+  * GREETING, farewell: さようなら <> さらば

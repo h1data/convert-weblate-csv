@@ -184,6 +184,7 @@ export async function convertInverse(adapter: Adapter, options: Options.Options,
             columnMap[key] = header[options.COLUMNS.indexOf(key)];
         }
     });
+    if (options.MULTI) columnMap['target'] = header[options.COLUMNS.indexOf(targetColumn)];
 
     const parserOptions : csvParser.Options = {
         mapHeaders: ({ header, index }) => columnMap[header],
