@@ -146,16 +146,16 @@ export async function convertInverse(adapter: Adapter, options: Options.Options,
         separator: options.SEPARATOR
     };
 
-    let contextColumn = '';
-    let sourceColumn = '';
-    let _targetColumn = '';
+    let contextIndex = '';
+    let sourceIndex = '';
+    let targetIndex = '';
 
     let header: Array<string> = [];
     if (!options.HEADER) {
         for (let i=0; i<options.COLUMNS.length; i++) header.push(String(i));
-        contextColumn = header[options.COLUMNS.indexOf('context')];
-        sourceColumn = header[options.COLUMNS.indexOf('source')];
-        _targetColumn = header[options.COLUMNS.indexOf(targetColumn)];
+        contextIndex = header[options.COLUMNS.indexOf('context')];
+        sourceIndex = header[options.COLUMNS.indexOf('source')];
+        targetIndex = header[options.COLUMNS.indexOf(targetColumn)];
     }
     const preValues = new Map<string, Object>();
     if (fs.existsSync(original)) {
@@ -165,12 +165,12 @@ export async function convertInverse(adapter: Adapter, options: Options.Options,
                 .pipe(csvParser(outParserOptions))
                 .on('headers', (head) => {
                     header = head;
-                    contextColumn = header[options.COLUMNS.indexOf('context')];
-                    sourceColumn = header[options.COLUMNS.indexOf('source')];
-                    _targetColumn = header[options.COLUMNS.indexOf(_targetColumn)];
+                    contextIndex = header[options.COLUMNS.indexOf('context')];
+                    sourceIndex = header[options.COLUMNS.indexOf('source')];
+                    targetIndex = header[options.COLUMNS.indexOf(targetColumn)];
                 })
                 .on('data', (data) => {
-                    const index = (data[contextColumn] ?? '') + data[sourceColumn];
+                    const index = (data[contextIndex] ?? '') + data[sourceIndex];
                     preValues[index] = data;
                 })
                 .on('end', resolve)
@@ -196,12 +196,12 @@ export async function convertInverse(adapter: Adapter, options: Options.Options,
             .pipe(iconv.decodeStream(options.ENCODING as string))
             .pipe(csvParser(parserOptions))
             .on('data', (data: Object) => {
-                const index = (data[contextColumn] ?? '') + data[sourceColumn];
-                if (preValues[index] && preValues[index][targetColumn] != undefined) {
+                const index = (data[contextIndex] ?? '') + data[sourceIndex];
+                if (preValues[index] && preValues[index][targetIndex] != undefined) {
                     // updated translations
-                    if (preValues[index][targetColumn] != data[targetColumn]) {
+                    if (preValues[index][targetIndex] != data[targetIndex]) {
                         updates++;
-                        preValues[index][targetColumn] = data[targetColumn];
+                        preValues[index][targetIndex] = data[targetIndex];
                     }
                 }
             })
