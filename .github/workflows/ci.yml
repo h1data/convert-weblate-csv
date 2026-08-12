@@ -169,7 +169,7 @@ jobs:
           weblate_csv: test/multi/weblate/localization_*.csv
           output_csv: test/multi/original/localization_out.csv
           stats_file: test/multi/original/stats.txt
-          columns: context,source,target,developer_comments
+          columns: context,source,target_zh,target_ko,target_ja,developer_comments
           obsolete: true
 
       - name: Print outputs
