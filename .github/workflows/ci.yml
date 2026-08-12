@@ -164,7 +164,7 @@ jobs:
         uses: ./
         with:
           invert: true
-          multi: false
+          multi: true
           original_csv: test/multi/original/localization.csv
           weblate_csv: test/multi/weblate/localization_*.csv
           output_csv: test/multi/original/localization_out.csv
