@@ -174,15 +174,15 @@ jobs:
 
       - name: Print outputs
         run: |
-          echo "converted: test/multi/original/localization_ja_out.csv"
-          cat test/multi/original/localization_ja_out.csv
+          echo "converted: test/multi/original/localization_out.csv"
+          cat test/multi/original/localization_out.csv
           echo "Stats: ${{ steps.conversion.outputs.stats }}"
 
       - name: Check output format
         run: |
           echo "Comparing expected vs produced CSVs"
-          if [ ! -f test/multi/original/localization_ja_out.csv ]; then echo "Produced CSV not found" && exit 2; fi
-          diff -u test/multi/original/localization_ja_expected.csv test/multi/original/localization_ja_out.csv || (echo "CSV conversion mismatch" && exit 1)
+          if [ ! -f test/multi/original/localization_out.csv ]; then echo "Produced CSV not found" && exit 2; fi
+          diff -u test/multi/original/localization_expected.csv test/multi/original/localization_out.csv || (echo "CSV conversion mismatch" && exit 1)
 
           echo "Comparing expected vs produced stats"
           if [ ! -f test/multi/original/stats.txt ]; then echo "Produced stats file not found" && exit 2; fi
