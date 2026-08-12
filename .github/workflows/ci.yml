@@ -103,4 +103,90 @@ jobs:
 
           echo -n "${{ steps.conversion.outputs.stats }}" > test/single/original/stats_output.txt
           diff -u test/single/original/stats_expected.txt test/single/original/stats_output.txt || (echo "Stats output mismatch" && exit 1)
-# TODO test-multilingual:
+
+  test-multi-1:
+    name: Test (multi language to translate)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Conversion
+        id: conversion
+        uses: ./
+        with:
+          invert: false
+          multi: true
+          original_csv: test/multi/original/localization.csv
+          weblate_csv: test/multi/weblate/localization_*.csv
+          stats_file: test/multi/weblate/stats.txt
+          columns: context,source,target_zh,target_ko,target_ja,developer_comments
+          obsolete: true
+
+      - name: Print outputs
+        run: |
+          echo "converted: test/multi/weblate/localization_ja.csv"
+          cat test/multi/weblate/localization_ja.csv
+          echo "converted: test/multi/weblate/localization_ko.csv"
+          cat test/multi/weblate/localization_ko.csv
+          echo "converted: test/multi/weblate/localization_zh.csv"
+          cat test/multi/weblate/localization_zh.csv
+          echo "Stats: ${{ steps.conversion.outputs.stats }}"
+
+      - name: Check output format
+        run: |
+          echo "Comparing expected vs produced CSVs"
+          if [ ! -f test/multi/weblate/localization_ja.csv ]; then echo "Produced CSV (ja) not found" && exit 2; fi
+          if [ ! -f test/multi/weblate/localization_ko.csv ]; then echo "Produced CSV (ko) not found" && exit 2; fi
+          if [ ! -f test/multi/weblate/localization_zh.csv ]; then echo "Produced CSV (zh) not found" && exit 2; fi
+          diff -u test/multi/weblate/localization_ja_expected.csv test/multi/weblate/localization_ja.csv || (echo "CSV (ja) conversion mismatch" && exit 1)
+          diff -u test/multi/weblate/localization_ko_expected.csv test/multi/weblate/localization_ko.csv || (echo "CSV (ko) conversion mismatch" && exit 1)
+          diff -u test/multi/weblate/localization_zh_expected.csv test/multi/weblate/localization_zh.csv || (echo "CSV (zh) conversion mismatch" && exit 1)
+
+          echo "Comparing expected vs produced stats"
+          if [ ! -f test/multi/weblate/stats.txt ]; then echo "Produced stats file not found" && exit 2; fi
+          diff -u test/multi/weblate/stats_expected.txt test/multi/weblate/stats.txt || (echo "Stats file mismatch" && exit 1)
+
+          echo -n "${{ steps.conversion.outputs.stats }}" > test/multi/weblate/stats_output.txt
+          diff -u test/multi/weblate/stats_expected.txt test/multi/weblate/stats_output.txt || (echo "Stats output mismatch" && exit 1)
+
+  test-multi-2:
+    name: Test (multi language to translate, inverse)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Conversion
+        id: conversion
+        uses: ./
+        with:
+          invert: true
+          multi: false
+          original_csv: test/multi/original/localization.csv
+          weblate_csv: test/multi/weblate/localization_*.csv
+          output_csv: test/multi/original/localization_out.csv
+          stats_file: test/multi/original/stats.txt
+          columns: context,source,target,developer_comments
+          obsolete: true
+
+      - name: Print outputs
+        run: |
+          echo "converted: test/multi/original/localization_ja_out.csv"
+          cat test/multi/original/localization_ja_out.csv
+          echo "Stats: ${{ steps.conversion.outputs.stats }}"
+
+      - name: Check output format
+        run: |
+          echo "Comparing expected vs produced CSVs"
+          if [ ! -f test/multi/original/localization_ja_out.csv ]; then echo "Produced CSV not found" && exit 2; fi
+          diff -u test/multi/original/localization_ja_expected.csv test/multi/original/localization_ja_out.csv || (echo "CSV conversion mismatch" && exit 1)
+
+          echo "Comparing expected vs produced stats"
+          if [ ! -f test/multi/original/stats.txt ]; then echo "Produced stats file not found" && exit 2; fi
+          diff -u test/multi/original/stats_expected.txt test/multi/original/stats.txt || (echo "Stats file mismatch" && exit 1)
+
+          echo -n "${{ steps.conversion.outputs.stats }}" > test/multi/original/stats_output.txt
+          diff -u test/multi/original/stats_expected.txt test/multi/original/stats_output.txt || (echo "Stats output mismatch" && exit 1)
