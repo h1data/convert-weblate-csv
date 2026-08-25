@@ -43,10 +43,10 @@ In this example, set `columns` option as `context,source,target,developer_commen
 Converted CSV for Weblate
 ``` csv
 "location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
-"test/single/original/localization_ja.csv:2","hello","こんにちは","","False","GREETING","","comment test"
-"test/single/original/localization_ja.csv:3","Good bye!","さようなら！","","False","GREETING","",""
-"test/single/original/localization_ja.csv:4","Start","開始","","False","MENU","",""
-"test/single/original/localization_ja.csv:5","Quit","終了","","False","MENU","",""
+"test/single/original/localization_ja.csv:1","hello","こんにちは","","False","GREETING","","comment test"
+"test/single/original/localization_ja.csv:2","Good bye!","さようなら！","","False","GREETING","",""
+"test/single/original/localization_ja.csv:3","Start","開始","","False","MENU","",""
+"test/single/original/localization_ja.csv:4","Quit","終了","","False","MENU","",""
 ```
 
 #### 2. Deleted Items
@@ -65,10 +65,10 @@ MENU,Quit,終了,
 Converted CSV for Weblate
 ``` csv
 "location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
-"test/single/original/localization_ja.csv:2","hello","こんにちは","","False","GREETING","","comment test"
-"test/single/original/localization_ja.csv:3","Good bye!","さようなら！","","False","GREETING","",""
-"test/single/original/localization_ja.csv:4","Quit","終了","","False","MENU","",""
-"[DELETED] former test/single/original/localization_ja.csv:4","Start","開始","","False","MENU","","[DELETED]"
+"test/single/original/localization_ja.csv:1","hello","こんにちは","","False","GREETING","","comment test"
+"test/single/original/localization_ja.csv:2","Good bye!","さようなら！","","False","GREETING","",""
+"test/single/original/localization_ja.csv:3","Quit","終了","","False","MENU","",""
+"[DELETED] former test/single/original/localization_ja.csv:3","Start","開始","","False","MENU","","[DELETED]"
 ```
 
 Those deleted entries are still available in Weblate, but not affect for the original CSV.
@@ -90,10 +90,10 @@ Converted CSV for Weblate before conversion:
 
 ``` csv
 "location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
-"test/single/original/localization_ja.csv:2","hello","こんにちは","","False","GREETING","","comment test"
-"test/single/original/localization_ja.csv:3","Good bye!","さようなら！","","False","GREETING","",""
-"test/single/original/localization_ja.csv:4","Start","開始","","False","MENU","",""
-"test/single/original/localization_ja.csv:5","Quit","終了","","False","MENU","",""
+"test/single/original/localization_ja.csv:1","hello","こんにちは","","False","GREETING","","comment test"
+"test/single/original/localization_ja.csv:2","Good bye!","さようなら！","","False","GREETING","",""
+"test/single/original/localization_ja.csv:3","Start","開始","","False","MENU","",""
+"test/single/original/localization_ja.csv:4","Quit","終了","","False","MENU","",""
 ```
 
 In this case, the script reports as discrepancies like below;
