@@ -41,7 +41,7 @@ This process can be done automatically by daily scheduled workflows, or just pre
 
 When updated the CSV files in `localization` branch, it could trigger the workflow described in [8. creates release branch](#8-creates-release-branch), but it will be discussed later.
 
-> [!INFO]
+> [!NOTE]
 > You can also create extra CSV files to aid the translation process in your workflows.<br>
 > See [add-csv-index](https://github.com/h1data/add-csv-index) workflow.
 
@@ -67,7 +67,7 @@ gitGraph
 
 The files can be pushed to `localization` branch directly. In this example, the workflow creates a temporary branch `update-csv-*` and make PR/MR for `localization`. This allows the translators/maintainers to check the updates.
 
-> [!INFO]
+> [!NOTE]
 > You can use IDs of workflow run or commit for branch name to avoid conflict of branch names:
 > - [`GITHUB_RUN_ID` or `GITHUB_SHA`](https://docs.github.com/en/actions/reference/workflows-and-actions/variables) (GitHub)
 > - [`CI_PIPELINE_ID` or `CI_COMMIT_SHA`](https://docs.gitlab.com/ci/variables/predefined_variables/) (GitLab)
@@ -199,7 +199,7 @@ gitGraph
   merge localization type: HIGHLIGHT id: "8. creates release branch"
 ```
 
-> [!INFO]
+> [!NOTE]
 > [`git checkout --` (--pathspec-from-file)](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-gitcheckouttree-ish--pathspec) can only pick up CSVs in the original format for PR/MR to `upstream`.
 > ``` sh
 > # after deleted release branch via API

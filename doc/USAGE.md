@@ -46,7 +46,7 @@ jobs:
 - `original_csv`: Path of the original CSV (required)
 - `weblate_csv`: Path of the Weblate CSV (required)<br>
 - `output_csv`: Output file path (optional)
-> [!INFO]
+> [!NOTE]
 > File path options `original_csv`, `weblate_csv`, and  `output_csv` (if specified) can include `*` as placeholder for language code.
 > - When `multi` is `false`, `original_csv`, `weblate_csv`, and `output_csv` can have `*`, but it's allowed only if each option must include `*`.
 > - When `multi` is `true`, `original_csv` (`output_csv` when `invert: true`) cannot have `*` and `weblate_csv` (`output_csv` when `invert: false`) must have `*`.
@@ -150,7 +150,7 @@ node dist/index.js --original_csv "localization_*.csv" --weblate_CSV "weblate/lo
 - `--original_csv`: Path of the original CSV (required)
 - `--weblate_csv`: Path of the Weblate CSV (required)
 - `--output_csv`: Output file path (optional)
-> [!INFO]
+> [!NOTE]
 > When use apostrophes `*` for file paths on certain shells, quote them like the example above.
 - `--invert`: Executes inverse conversion from Weblate CSV to the original
 - `--multi`: Convert as input CSV contains multiple languages to translate
