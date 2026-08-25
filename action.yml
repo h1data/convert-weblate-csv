@@ -7,13 +7,13 @@ inputs:
     description: Whether inverse conversion from Weblate CSV to the original CSV or not (true/false)
     required: true
   multi: 
-    description: Whether original CSV contains multiple languages to translate (true/false)
+    description: Whether the original CSV has multiple languages to translate (true/false)
     required: true
   original_csv:
-    description: Path of the original csv
+    description: Path of the original CSV
     required: true
   weblate_csv:
-    description: Path of the Weblate csv
+    description: Path of the Weblate CSV
     required: true
   output_csv:
     description: Output file path (optional)
@@ -26,7 +26,7 @@ inputs:
     description: Column list as Weblate CSV (context, source, target...) 
     required: true
   header:
-    description: Whether the original CSV has header (true/false)
+    description: Whether the original CSV has header line (true/false)
     required: false
     default: "true"
   encoding:
@@ -54,7 +54,7 @@ inputs:
     required: false
     default: "true"
   overwrite:
-    description: "Whether overwriting existed translations of CSVs for Weblate"
+    description: Whether overwriting existed translations of CSVs for Weblate
     required: false
     default: "false"
   quoting:

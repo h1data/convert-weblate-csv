@@ -1,88 +1,119 @@
-# Convert Weblate CSV GitHub Action
+# Convert Weblate CSV Workflow
 
-This is a script to convert between versatile CSVs and ones for Weblate.
+This is a script to convert CSV files between versatile format and Weblate format in workflows.
 
 ## Motivation
 
-Weblate is an open source CAT and can handle CSV files.
+Among many standards, CSV is the most common format for translation of software/games.<br>
+[Weblate](https://github.com/WeblateOrg/weblate) is an open source CAT, which can handle CSV files, however, it can import CSV files with [specific format](https://docs.weblate.org/en/latest/formats/csv.html) only, which must have columns in the specific order.<br>
+Besides, when an entry (line) in the original file was deleted, the entry of Weblate would also be deleted, even if it has additional information such as comments of discussion or screenshots.
 
-However, Weblate can only CSV files with the specific format.[^1]<br>
-Besides, when an item of original file was deleted, the entry of Weblate would also be deleted, even if it has additional information such as comments of discussion or screenshots. The discussion in the official concluded to delete entries automatically.
-
-This GitHub Action solves automated CSV conversion jobs and provide much more reliable workflow with Weblate.
+This workflow solves automated CSV conversion jobs and provide much more reliable use with Weblate.
 
 ## Goals
 
-- To automate CSV conversion with GitHub Actions
-- To preserve deleted items as obsoleted in converted CSV, and the obsoleted items do not affect original CSV
-- To adapt CSVs of any format in both monolingual and multilingual CSV, and quoting dialects.
+- To automate CSV conversion with workflows.
+- To preserve deleted entries as obsoleted in converted CSV, and the obsoleted items do not affect original CSV.
+- To adapt CSV files in any format; having single target language or multi target languages, and dialects such as separators, linefeeds, and quoting.
+- To work for GitHub Actions, GitLab CI, and CLI.
 
-## Workflow Example
+## How Conversion Works
 
-``` mermaid
----
-config:
-  gitGraph:
-    mainBranchName: "upstream"
----
-gitGraph
-  commit id: "Developer push"
-  branch "main"
-  commit id: "pull original CSV"
-  branch "localization"
-  branch "* convert-csv"
-  commit id: "converted csv for Weblate"
-  checkout "localization"
-  merge "* convert-csv"
-  commit id: "merged PR"
-  branch weblate
-  commit id: "updated translations"
-  checkout "localization"
-  merge weblate
-  commit id: "merged PR (or push directly)"
-  checkout main
-  branch "* create-pr"
-  merge localization type: HIGHLIGHT
-  commit id: "converted to original CSV"
-  checkout upstream
-  merge "* create-pr"
+This section describes simple examples of CSV conversions.
+
+### From Original CSV to CSV for Weblate
+
+#### 1. Basic
+
+When `invert` option is disabled, the script creates or updates the CSV files for Weblate from the original CSV.<br>
+The simplest example is as follows.
+
+The original CSV
+``` csv
+type,en,ja,comment
+GREETING,"Hello, $NAME",こんにちは、$NAME,comment test
+GREETING,"Good bye!",さようなら!,
+MENU,Start,開始,
+MENU,Quit,終了,
 ```
-`*` created by GitHub Actions<br>
-This GitHub Action works for "converted csv for Weblate" and "converted to original CSV" from Weblate-style-CSV.
 
-## Usage
+In this example, set `columns` option as `context,source,target,developer_comments` to convert each column.<br>
+(see [Usage](doc/USAGE.md) for the detail of options)
 
-for details, see sample
+Converted CSV for Weblate
+``` csv
+"location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
+"test/single/original/localization_ja.csv:2","hello","こんにちは","","False","GREETING","","comment test"
+"test/single/original/localization_ja.csv:3","Good bye!","さようなら！","","False","GREETING","",""
+"test/single/original/localization_ja.csv:4","Start","開始","","False","MENU","",""
+"test/single/original/localization_ja.csv:5","Quit","終了","","False","MENU","",""
+```
 
-### inputs
-- `mode`: Conversion mode - true: original to Weblate, false: Weblate to original (required)
-- `multi`: Whether input CSV contains multiple languages to translate (required, true/false)
-- `input`: Input file pattern (required)
-- `output`: Output file patter (required, ** with language code)
-- `columns`: Column mapping in Python dict format (required)
-- `header`: Header of the original CSV, false for no header ()
-- `quoting`: CSV quotation style (default = `QUOTE_MINIMAL`, see https://docs.python.org/3.14/library/csv.html#csv.QUOTE_ALL)
-- `obsolete`
+#### 2. Deleted Items
 
-### outputs
-- `stats`: represents converted CSV's information as follows
-  * when converting from original CSV to CSV for Weblate
-    ``` md
-    in: samples/multi/original/localization.csv
-    out: samples/multi/weblate/localization_ja.csv
-    new lines: 14
-    deleted lines: 3
-    ----
-    in: samples/multi/original/localization.csv
-    out: samples/multi/weblate/localization_zh.csv
-    new lines: 14
-    deleted lines: 3
-    ```
-  * when converting from CSV for Weblate to original CSV (monolingual)
-    ``` md
-    in: samples/multi/weblate/localization_ja.csv
-    out: samples/multi/original/localization_ja.csv
-    updated lines: 1
-    ```
+If an entry in existed Weblate CSV is not existed in the original CSV, it will be marked as `[DELETED]` in the `location` column.
+(this behavior can be omitted by setting `obsolete` option to `false`)
 
-^1 https://docs.weblate.org/en/latest/formats/csv.html
+``` csv
+type,en,ja,comment
+GREETING,"Hello, $NAME",こんにちは、$NAME,comment test
+GREETING,"Good bye!",さようなら!,
+MENU,Quit,終了,
+```
+(the line `MENU,Start,開始,` was deleted from [1. Base](#1-basic))
+
+Converted CSV for Weblate
+``` csv
+"location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
+"test/single/original/localization_ja.csv:2","hello","こんにちは","","False","GREETING","","comment test"
+"test/single/original/localization_ja.csv:3","Good bye!","さようなら！","","False","GREETING","",""
+"test/single/original/localization_ja.csv:4","Quit","終了","","False","MENU","",""
+"[DELETED] former test/single/original/localization_ja.csv:4","Start","開始","","False","MENU","","[DELETED]"
+```
+
+Those deleted entries are still available in Weblate, but not affect for the original CSV.
+
+#### 3. Discrepancies
+
+If an entry is existed in both the original CSV and Weblate CSV but translated strings are not equivalent, the script reports the discrepancy in stats file and the output (GitHub Actions).
+
+The original CSV:
+``` csv
+type,en,ja,comment
+GREETING,"Hello, $NAME",こんにちは、$NAME,comment test
+GREETING,"Good bye!",さようなら,
+MENU,Start,開始,
+MENU,Quit,終了,
+```
+
+Converted CSV for Weblate before conversion:
+
+``` csv
+"location","source","target","ID","fuzzy","context","translator_comments","developer_comments"
+"test/single/original/localization_ja.csv:2","hello","こんにちは","","False","GREETING","","comment test"
+"test/single/original/localization_ja.csv:3","Good bye!","さようなら！","","False","GREETING","",""
+"test/single/original/localization_ja.csv:4","Start","開始","","False","MENU","",""
+"test/single/original/localization_ja.csv:5","Quit","終了","","False","MENU","",""
+```
+
+In this case, the script reports as discrepancies like below;
+```
+- discrepancies: 
+  * GREETING, Good bye!: さようなら <> さようなら！
+```
+
+By default, the script would not overwrite the existed translations on CSV files for Weblate, but those can be overwritten by enabling `overwrite` option. The combination of `context` and `source` is used for identities for each entry.
+
+### From CSV for Weblate to Original CSV
+
+When `invert` option is enabled, the script updates the translated strings to the original CSV.<br>
+The script only updates columns for in the original CSV to avoid contaminations.<br>
+Entries marked as `[DELETED]` are not affected to the original CSV.
+
+## [Usage](doc/USAGE.md)
+
+## [Git Flow Examples](doc/GITFLOW.md)
+
+## When you have difficulties setting up your workflow, or other demands
+
+Please feel free to [contact the author](https://h1data.github.io/contact/).
