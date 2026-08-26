@@ -4,18 +4,18 @@ This is a script to convert CSV files between versatile format and Weblate forma
 
 ## Motivation
 
-Among many standards, CSV is the most common format for translation of software/games.<br>
-[Weblate](https://github.com/WeblateOrg/weblate) is an open source CAT, which can handle CSV files, however, it can import CSV files with [specific format](https://docs.weblate.org/en/latest/formats/csv.html) only, which must have columns in the specific order.<br>
-Besides, when an entry (line) in the original file was deleted, the entry of Weblate would also be deleted, even if it has additional information such as comments of discussion or screenshots.
+Among many standards, CSV is one of the most common formats for the translation of software/games.<br>
+[Weblate](https://github.com/WeblateOrg/weblate) is an open-source CAT tool that can handle CSV files, however, it can import CSV files only in a [specific format](https://docs.weblate.org/en/latest/formats/csv.html), which must have columns in a specific order.<br>
+Besides, when an entry (line) in the original file is deleted, the entry in Weblate will also be deleted, even if it has additional information such as discussion comments or screenshots.
 
-This workflow solves automated CSV conversion jobs and provide much more reliable use with Weblate.
+This workflow solves automated CSV conversion jobs and provides much more reliable use with Weblate.
 
 ## Goals
 
 - To automate CSV conversion with workflows.
-- To preserve deleted entries as obsoleted in converted CSV, and the obsoleted items do not affect original CSV.
-- To adapt CSV files in any format; having single target language or multi target languages, and dialects such as separators, linefeeds, and quoting.
-- To work for GitHub Actions, GitLab CI, and CLI.
+- To preserve deleted entries as obsoleted in the converted CSV and ensure the obsoleted items do not affect the original CSV.
+- To adapt CSV files in any format; having single target language or multiple target languages, and dialects such as separators, line feeds, and quoting.
+- To work with GitHub Actions, GitLab CI, and CLI.
 
 ## How Conversion Works
 
@@ -51,7 +51,7 @@ Converted CSV for Weblate
 
 #### 2. Deleted Items
 
-If an entry in existed Weblate CSV is not existed in the original CSV, it will be marked as `[DELETED]` in the `location` column.
+If an existing entry in the Weblate CSV does not exist in the original CSV, it will be marked as `[DELETED]` in the `location` column.
 (this behavior can be omitted by setting `obsolete` option to `false`)
 
 ``` csv
@@ -60,7 +60,7 @@ GREETING,"Hello, $NAME",こんにちは、$NAME,comment test
 GREETING,"Good bye!",さようなら!,
 MENU,Quit,終了,
 ```
-(the line `MENU,Start,開始,` was deleted from [1. Base](#1-basic))
+(the line `MENU,Start,開始,` was deleted from the example in [1. Basic](#1-basic))
 
 Converted CSV for Weblate
 ``` csv
@@ -71,11 +71,11 @@ Converted CSV for Weblate
 "[DELETED] former test/single/original/localization_ja.csv:3","Start","開始","","False","MENU","","[DELETED]"
 ```
 
-Those deleted entries are still available in Weblate, but not affect for the original CSV.
+Those deleted entries are still available in Weblate, but they do not affect the original CSV.
 
 #### 3. Discrepancies
 
-If an entry is existed in both the original CSV and Weblate CSV but translated strings are not equivalent, the script reports the discrepancy in stats file and the output (GitHub Actions).
+If an entry exists in both the original CSV and Weblate CSV but the translated strings are not equivalent, the script reports the discrepancy in the stats file and the output (GitHub Actions).
 
 The original CSV:
 ``` csv
@@ -102,13 +102,13 @@ In this case, the script reports as discrepancies like below;
   * GREETING, Good bye!: さようなら <> さようなら！
 ```
 
-By default, the script would not overwrite the existed translations on CSV files for Weblate, but those can be overwritten by enabling `overwrite` option. The combination of `context` and `source` is used for identities for each entry.
+By default, the script would not overwrite the existing translations in CSV files for Weblate, but those can be overwritten by enabling `overwrite` option. The combination of `context` and `source` is used for identities for each entry.
 
 ### From CSV for Weblate to Original CSV
 
-When `invert` option is enabled, the script updates the translated strings to the original CSV.<br>
-The script only updates columns for in the original CSV to avoid contaminations.<br>
-Entries marked as `[DELETED]` are not affected to the original CSV.
+When `invert` option is enabled, the script updates the translated strings in the original CSV.<br>
+The script only updates columns in the original CSV to avoid contamination.<br>
+Entries marked as `[DELETED]` are not affected in the original CSV.
 
 ## [Usage](doc/USAGE.md)
 

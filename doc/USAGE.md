@@ -9,9 +9,9 @@ This section describes how to use the script for workflow platforms below.
 ### GitHub Actions
 
 > [!CAUTION]
-> For secure use of your workflow on GitHub, see the official documents such as [Security reference](https://docs.github.com/en/actions/reference/security).
+> For secure use of your workflow on GitHub, see the official documents, such as [Security reference](https://docs.github.com/en/actions/reference/security).
 
-Create yaml file on `.github/workflows/`. The most simple workflow is as follows.
+Create yaml file in `.github/workflows/`. The simplest workflow is as follows.
 
 ``` yaml
 # Converts original CSV files to Weblate CSV files
@@ -136,7 +136,7 @@ convert-csv:
 ```
 
 Set parameters prefixed `INPUT_` with capital letters as environment variables.<br>
-See [inputs](#inputs) section of GitHub for parameters.
+See [Inputs](#inputs) parameter section for GitHub.
 
 ### CLI
 
@@ -168,7 +168,3 @@ node dist/index.js --original_csv "localization_*.csv" --weblate_CSV "weblate/lo
 - `--help`: Print the usage
 
 See description for [GitHub Inputs](#inputs) for details.
-
-## When you have difficulties setting up your workflow, or other demands
-
-Please feel free to [contact the author](https://h1data.github.io/contact/).

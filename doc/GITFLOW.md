@@ -1,10 +1,10 @@
 ## Git Flow Examples
 
-This section describes example how the scripts work and change git repositories on workflows.
+This section describes examples of how the scripts work and change git repositories in workflows.
 
 ### 1. Developer's push
 
-The developer just pushes the original CSV files on the `upstream`, which is the repository that developers and translators share the translation CSV files.
+The developer just pushes the original CSV files to the `upstream`, which is the repository where developers and translators share the translation CSV files.
 
 ``` mermaid
 ---
@@ -19,7 +19,7 @@ gitGraph
 
 ### 2. Pulls original CSVs
 
-Updates `main`, which is the main branch of the `upstream`'s fork repository, and `localization` which is the work branch.
+Updates `main`, which is the main branch of the `upstream`'s fork repository, and `localization`, which is the work branch.
 
 ``` mermaid
 ---
@@ -37,7 +37,7 @@ gitGraph
 
 In this example, `main` is intended for the complete mirror of the `upstream` repository's content, and `localization` is the work branch to have converted and modified CSV files.
 
-This process can be done automatically by daily scheduled workflows, or just pressing "Update fork" button on the repository page.
+This process can be done automatically by daily scheduled workflows, or just by pressing "Update fork" button on the repository page.
 
 When updated the CSV files in `localization` branch, it could trigger the workflow described in [8. creates release branch](#8-creates-release-branch), but it will be discussed later.
 
@@ -47,7 +47,7 @@ When updated the CSV files in `localization` branch, it could trigger the workfl
 
 ### 3. Convert CSVs for Weblate
 
-When original CSV files in `localization` branch are updated, the workflow triggers the script to create CSV files for Weblate. (`INVERT: false`)
+When the original CSV files in `localization` branch are updated, the workflow triggers the script to create CSV files for Weblate. (`INVERT: false`)
 
 ``` mermaid
 ---
@@ -65,16 +65,16 @@ gitGraph
   commit id: "3. convert CSVs for Weblate"
 ```
 
-The files can be pushed to `localization` branch directly. In this example, the workflow creates a temporary branch `update-csv-*` and make PR/MR for `localization`. This allows the translators/maintainers to check the updates.
+The files can be pushed to `localization` branch directly. In this example, the workflow creates a temporary branch `update-csv-*` and makes a PR/MR for `localization`. This allows the translators/maintainers to check the updates.
 
 > [!NOTE]
-> You can use IDs of workflow run or commit for branch name to avoid conflict of branch names:
+> You can use the IDs of the workflow run or commit for the branch name to avoid conflicts with branch names:
 > - [`GITHUB_RUN_ID` or `GITHUB_SHA`](https://docs.github.com/en/actions/reference/workflows-and-actions/variables) (GitHub)
 > - [`CI_PIPELINE_ID` or `CI_COMMIT_SHA`](https://docs.gitlab.com/ci/variables/predefined_variables/) (GitLab)
 
 ### 4. Merge PR/MR
 
-Just merges the updated CSV for Weblate to `localization`. You can delete the temporary branch when merged.
+Just merges the updated CSV for Weblate into `localization`. You can delete the temporary branch when merged.
 
 ``` mermaid
 ---
@@ -97,7 +97,7 @@ gitGraph
   commit id: "delete branch" type: REVERSE
 ```
 
-Before merged, the translators/maintainers also can check and edit converted CSV files;<br>
+Before merging, the translators/maintainers can also check and edit converted CSV files;<br>
 i.e. deleting lines marked as `[DELETED]` (when `OBSOLETE: true`) or changing `Fuzzy` flags.
 
 ### 5. Updates Weblate
@@ -121,11 +121,11 @@ gitGraph
   commit id: "5. updates Weblate"
 ```
 
-Merge errors would occur when there were updated entries those have not be pushed in Weblate, but it can be solved by ["Reset and reapply" in repository maintenance](https://docs.weblate.org/en/latest/admin/continuous.html#repository-maintenance) in most cases.
+Merge errors would occur when there were updated entries that had not been pushed in Weblate, but it can be solved by ["Reset and reapply" in repository maintenance](https://docs.weblate.org/en/latest/admin/continuous.html#repository-maintenance) in most cases.
 
 ### 6. Updates translation from Weblate
 
-Just pushes or creates PR/MR from Weblate.
+Just pushes or creates a PR/MR from Weblate.
 
 ``` mermaid
 ---
@@ -173,7 +173,7 @@ gitGraph
 
 ### 8. creates release branch
 
-Creates/recreates `release` branch from `main` and converted files in `localization`, which is to create PR/MR for `upstream`.
+Creates/recreates `release` branch from `main` and converts files in `localization`, which is to create a PR/MR for `upstream`.
 
 ``` mermaid
 ---
