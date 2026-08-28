@@ -10,12 +10,12 @@ Besides, when an entry (line) in the original file is deleted, the entry in Webl
 
 This workflow solves automated CSV conversion jobs and provides much more reliable use with Weblate.
 
-## Goals
+## Features
 
-- To automate CSV conversion with workflows.
-- To preserve deleted entries as obsoleted in the converted CSV and ensure the obsoleted items do not affect the original CSV.
-- To adapt CSV files in any format; having single target language or multiple target languages, and dialects such as separators, line feeds, and quoting.
-- To work with GitHub Actions, GitLab CI, and CLI.
+- Automatically converts CSV files for Weblate.
+- Preserves deleted entries as obsoleted in the converted CSV and ensure the obsoleted items do not affect the original CSV.
+- Adapts CSV files in any format; having single target language or multiple target languages, and dialects such as separators, line feeds, and quoting.
+- Works with GitHub Actions, GitLab CI, and CLI.
 
 ## How Conversion Works
 
